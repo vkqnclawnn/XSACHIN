@@ -1,0 +1,11 @@
+# 환경 변수 파일 (민감 정보 포함)
+.env
+
+# Node.js 의존성 폴더 (npm install로 재생성 가능)
+node_modules/
+
+# 운영체제 및 IDE 관련 파일 (선택 사항)
+.DS_Store
+Thumbs.db
+*.log
+.vscode/

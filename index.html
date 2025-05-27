@@ -45,7 +45,7 @@
                 <div id="share-section" class="hidden">
                     <h3>애인에게 결과 공유하기</h3>
                     <p>아래 링크를 복사해서 애인에게 보내세요!</p>
-                    <input type="text" id="share-link" readonly>
+                    <input type="text" id="share-link" readonly> <!-- 이 값은 script.js에 의해 백엔드에서 받은 동적 URL로 채워질 수 있습니다. -->
                     <button id="copy-link-button">링크 복사</button>
                 </div>
                 <div id="partner-result-prompt" class="hidden">
@@ -75,6 +75,6 @@
             <p>&copy; 2024 X사친 테스트</p>
         </footer>
     </div>
-    <script src="script.js"></script>
+    <script src="script.js"></script> <!-- 이 스크립트의 내용이 크게 변경됩니다. -->
 </body>
 </html>
