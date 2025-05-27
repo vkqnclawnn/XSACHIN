@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X사친 테스트</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>X사친 테스트</h1>
+            <p>애인의 남사친/여사친, 어디까지 이해 가능?!</p>
+        </header>
+
+        <main id="app">
+            <section id="start-screen">
+                <h2>테스트 시작하기</h2>
+                <p>나의 X사친 허용 범위를 알아보고<br>애인과 결과를 공유해보세요!</p>
+                <div>
+                    <label for="participant-type">당신은 누구인가요?</label>
+                    <select id="participant-type">
+                        <option value="partner1">테스트 시작 (먼저 하는 사람)</option>
+                        <option value="partner2">공유받은 링크로 테스트 시작</option>
+                    </select>
+                </div>
+                <button id="start-button">테스트 시작</button>
+            </section>
+
+            <section id="test-screen" class="hidden">
+                <h2 id="question-title">질문</h2>
+                <p id="question-text"></p>
+                <div id="answer-options">
+                    <!-- Answer options will be populated by JavaScript -->
+                </div>
+                <button id="next-question-button">다음 질문</button>
+            </section>
+
+            <section id="result-screen" class="hidden">
+                <h2>테스트 결과</h2>
+                <div id="individual-result">
+                    <p>당신의 점수: <span id="score"></span>점</p>
+                    <p>결과: <span id="result-summary"></span></p>
+                </div>
+                <div id="share-section" class="hidden">
+                    <h3>애인에게 결과 공유하기</h3>
+                    <p>아래 링크를 복사해서 애인에게 보내세요!</p>
+                    <input type="text" id="share-link" readonly>
+                    <button id="copy-link-button">링크 복사</button>
+                </div>
+                <div id="partner-result-prompt" class="hidden">
+                    <p>애인이 테스트를 완료하면 두 사람의 결과를 함께 볼 수 있습니다.</p>
+                </div>
+            </section>
+
+            <section id="combined-result-screen" class="hidden">
+                <h2>두 사람의 테스트 결과 비교</h2>
+                <div class="result-comparison">
+                    <div id="my-result-combined">
+                        <h3>나의 결과</h3>
+                        <p>점수: <span id="my-score-combined"></span></p>
+                        <p>요약: <span id="my-summary-combined"></span></p>
+                    </div>
+                    <div id="partner-result-combined">
+                        <h3>애인의 결과</h3>
+                        <p>점수: <span id="partner-score-combined"></span></p>
+                        <p>요약: <span id="partner-summary-combined"></span></p>
+                    </div>
+                </div>
+                <button id="restart-button">다시 테스트하기</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 X사친 테스트</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
