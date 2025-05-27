@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = 'http://localhost:3000/api'; // Replace with your Render backend URL when deployed
+    // const API_BASE_URL = 'http://localhost:3000/api'; // 이전 설정
+    const API_BASE_URL = '/api'; // 상대 경로로 변경
 
     // Screen elements
     const startScreen = document.getElementById('start-screen');
@@ -28,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const partnerScoreCombined = document.getElementById('partner-score-combined');
     const partnerSummaryCombined = document.getElementById('partner-summary-combined');
 
-    const participantTypeSelect = document.getElementById('participant-type');
+    // const participantTypeSelect = document.getElementById('participant-type'); // 제거됨
 
     // Test state
     let currentQuestionIndex = 0;
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let userAnswers = [];
     let currentTestId = null; // For the first user
     let linkedTestId = null; // For the second user, this is the first user's testId
+    let participantType = 'partner1'; // 기본값은 'partner1', URL 파라미터에 따라 변경될 수 있음
 
     // Placeholder questions (replace with actual questions and scoring logic)
     const questions = [
@@ -52,11 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (sharedTestId) {
             linkedTestId = sharedTestId;
-            participantTypeSelect.value = 'partner2';
-            participantTypeSelect.disabled = true; // Cannot change if opened via link
-            // Optionally, fetch partner1's data to show a message like "You are taking a test shared by [Partner1's Name/Alias]"
-            // For now, we just set the linkedTestId
-            console.log("Opened via shared link. Linked Test ID:", linkedTestId);
+            participantType = 'partner2'; // 공유 링크로 접속 시 partner2로 설정
+            // participantTypeSelect.value = 'partner2'; // 제거됨
+            // participantTypeSelect.disabled = true; // 제거됨
+            console.log("Opened via shared link. Linked Test ID:", linkedTestId, "Participant Type:", participantType);
+        } else {
+            participantType = 'partner1'; // 직접 접속 시 partner1로 설정
+            console.log("New test session. Participant Type:", participantType);
         }
     }
     
@@ -64,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentQuestionIndex = 0;
         userScore = 0;
         userAnswers = [];
+        // initializeTest()가 이미 호출되었으므로 participantType은 설정된 상태임
         startScreen.classList.add('hidden');
         testScreen.classList.remove('hidden');
         resultScreen.classList.add('hidden');
@@ -117,7 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreDisplay.textContent = userScore;
         resultSummaryDisplay.textContent = resultSummary;
 
-        const participantType = participantTypeSelect.value; // 'partner1' or 'partner2'
+        // participantType은 initializeTest 또는 startButton 클릭 시점에 이미 결정됨
+        // const participantType = participantTypeSelect.value; // 제거됨
 
         try {
             const response = await fetch(`${API_BASE_URL}/test`, {
@@ -126,8 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     score: userScore,
                     resultSummary: resultSummary,
-                    participantType: participantType,
-                    linkedTestId: linkedTestId // This will be null for partner1, or the ID from URL for partner2
+                    participantType: participantType, // 자동 결정된 participantType 사용
+                    linkedTestId: linkedTestId 
                 }),
             });
             const data = await response.json();
@@ -152,6 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
                  // Fallback or error case
                 shareSection.classList.add('hidden');
                 partnerResultPrompt.classList.add('hidden');
+                // 만약 partner1인데 isSharedLinkOrigin이 false로 오는 예외적인 경우 (서버 로직상 거의 없음)
+                // 또는 partner2인데 linkedTestId가 없는 경우 (클라이언트 로직상 거의 없음)
+                console.log("Displaying individual result for a scenario not typically leading to sharing or combined view immediately.");
             }
 
         } catch (error) {
@@ -221,8 +230,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset state and go to start screen
         currentTestId = null;
         linkedTestId = null;
-        participantTypeSelect.disabled = false;
-        participantTypeSelect.value = 'partner1';
+        // participantTypeSelect.disabled = false; // 제거됨
+        // participantTypeSelect.value = 'partner1'; // 제거됨
+        participantType = 'partner1'; // 재시작 시 기본값으로 초기화
         window.history.pushState({}, document.title, window.location.pathname); // Clear query params
 
         combinedResultScreen.classList.add('hidden');

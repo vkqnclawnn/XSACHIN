@@ -23,10 +23,7 @@ app.use(express.static(path.join(__dirname, '')));
 
 
 // MongoDB Connection with Mongoose
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(MONGODB_URI)
 .then(() => {
     console.log('MongoDB connected successfully');
     // 데이터베이스 연결 성공 후 서버 시작
