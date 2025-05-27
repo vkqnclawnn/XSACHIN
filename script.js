@@ -116,14 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function finishTest() {
         testScreen.classList.add('hidden');
-        resultScreen.classList.remove('hidden');
+        // resultScreen.classList.remove('hidden'); // 개인 결과 화면 표시 로직을 조건부로 변경
+        // scoreDisplay.textContent = userScore; // 아래 조건문 내부로 이동
+        // resultSummaryDisplay.textContent = resultSummary; // 아래 조건문 내부로 이동
 
         const resultSummary = getResultSummary(userScore);
-        scoreDisplay.textContent = userScore;
-        resultSummaryDisplay.textContent = resultSummary;
-
-        // participantType은 initializeTest 또는 startButton 클릭 시점에 이미 결정됨
-        // const participantType = participantTypeSelect.value; // 제거됨
 
         try {
             const response = await fetch(`${API_BASE_URL}/test`, {
@@ -132,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     score: userScore,
                     resultSummary: resultSummary,
-                    participantType: participantType, // 자동 결정된 participantType 사용
+                    participantType: participantType, 
                     linkedTestId: linkedTestId 
                 }),
             });
@@ -145,27 +142,43 @@ document.addEventListener('DOMContentLoaded', () => {
             currentTestId = data.testId; // The ID of the test just taken
 
             if (participantType === 'partner1' && data.isSharedLinkOrigin) {
+                // 첫 번째 사용자: 개인 결과 화면 및 공유 링크 표시
+                scoreDisplay.textContent = userScore;
+                resultSummaryDisplay.textContent = resultSummary;
+                resultScreen.classList.remove('hidden'); // 개인 결과 화면 표시
+
                 shareSection.classList.remove('hidden');
                 partnerResultPrompt.classList.remove('hidden');
                 const shareUrl = `${window.location.origin}${window.location.pathname}?test_id=${currentTestId}`;
                 shareLinkInput.value = shareUrl;
             } else if (participantType === 'partner2' && linkedTestId) {
-                // Partner 2 finished, now fetch both results
+                // 공유받은 사용자: 바로 두 사람 결과 비교 화면 표시
+                resultScreen.classList.add('hidden'); // 개인 결과 화면을 명시적으로 숨김
                 shareSection.classList.add('hidden');
                 partnerResultPrompt.classList.add('hidden');
-                fetchAndDisplayCombinedResults(linkedTestId);
+                await fetchAndDisplayCombinedResults(linkedTestId); // 두 사람 결과 비교 함수 호출
             } else {
-                 // Fallback or error case
+                 // 기타 경우 (예: partner1이지만 isSharedLinkOrigin이 false 등): 개인 결과 화면 표시
+                scoreDisplay.textContent = userScore;
+                resultSummaryDisplay.textContent = resultSummary;
+                resultScreen.classList.remove('hidden');
+
                 shareSection.classList.add('hidden');
                 partnerResultPrompt.classList.add('hidden');
-                // 만약 partner1인데 isSharedLinkOrigin이 false로 오는 예외적인 경우 (서버 로직상 거의 없음)
-                // 또는 partner2인데 linkedTestId가 없는 경우 (클라이언트 로직상 거의 없음)
-                console.log("Displaying individual result for a scenario not typically leading to sharing or combined view immediately.");
+                console.log("Displaying individual result for a fallback scenario.");
             }
 
         } catch (error) {
             console.error('Error finishing test:', error);
-            resultSummaryDisplay.textContent = `오류가 발생했습니다: ${error.message}`;
+            // 오류 발생 시 개인 결과 화면에 오류 메시지 표시 (combinedResultScreen이 활성화되지 않은 경우)
+            if (combinedResultScreen.classList.contains('hidden')) {
+                scoreDisplay.textContent = "오류";
+                resultSummaryDisplay.textContent = `오류가 발생했습니다: ${error.message}`;
+                resultScreen.classList.remove('hidden');
+                shareSection.classList.add('hidden');
+                partnerResultPrompt.classList.add('hidden');
+            }
+            // fetchAndDisplayCombinedResults 내부에서 오류 발생 시 해당 함수가 combinedResultScreen에 오류를 표시할 것임
         }
     }
 
@@ -182,31 +195,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const partner2Result = data.partner2Test;
 
             if (partner1Result && partner2Result) {
-                // Determine who is "my" result and who is "partner"
-                // If currentTestId matches partner1Result.testId, then partner1 is "me"
-                // This logic needs refinement based on who is viewing.
-                // For now, assume partner1 is the one who initiated, partner2 is the one who used the link.
-                // The person viewing this is partner2.
-                
+                // 현재 사용자는 partner2라고 가정 (공유 링크를 통해 접속했으므로)
+                // '나의 결과'는 partner2, '애인의 결과'는 partner1
                 myScoreCombined.textContent = partner2Result.score;
                 mySummaryCombined.textContent = partner2Result.resultSummary;
                 partnerScoreCombined.textContent = partner1Result.score;
                 partnerSummaryCombined.textContent = partner1Result.resultSummary;
-
-                resultScreen.classList.add('hidden'); // Hide individual result for partner2
+                
+                resultScreen.classList.add('hidden'); 
                 combinedResultScreen.classList.remove('hidden');
 
             } else {
-                 // Handle case where one result might be missing, though ideally both should be there
-                alert("파트너의 결과를 가져오는 데 문제가 발생했습니다.");
-                // Show individual result for partner2 if partner1's is not found
-                scoreDisplay.textContent = userScore; // userScore is partner2's score
-                resultSummaryDisplay.textContent = getResultSummary(userScore);
+                // 한쪽 결과가 없는 경우 (예: partner1 결과는 있지만 partner2 결과가 아직 없는 경우 - 이 시나리오에서는 거의 발생 안함)
+                // 또는 partner1 결과가 없는 경우 (서버 오류 또는 잘못된 originalTestId)
+                throw new Error('두 참여자의 결과를 모두 가져오지 못했습니다.');
             }
 
         } catch (error) {
             console.error('Error fetching combined results:', error);
-            alert(`결합된 결과를 가져오는데 실패했습니다: ${error.message}`);
+            // 비교 결과 화면에 오류 메시지 표시
+            myScoreCombined.textContent = "오류";
+            mySummaryCombined.textContent = ""; // Clear previous summary
+            partnerScoreCombined.textContent = "오류";
+            partnerSummaryCombined.textContent = `결과 비교 중 오류: ${error.message}`;
+            
+            resultScreen.classList.add('hidden'); // 개인 결과 화면 숨김
+            combinedResultScreen.classList.remove('hidden'); // 비교 결과 화면(오류 메시지 포함) 표시
         }
     }
 
