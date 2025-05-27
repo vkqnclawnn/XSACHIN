@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // const API_BASE_URL = 'http://localhost:3000/api'; // 이전 설정
-    const API_BASE_URL = '/api'; // 상대 경로로 변경
+    const API_BASE_URL = 'https://xsachin.onrender.com/api'; // 상대 경로로 변경
 
     // Screen elements
     const startScreen = document.getElementById('start-screen');
