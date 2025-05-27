@@ -16,7 +16,14 @@ if (!MONGODB_URI) {
 }
 
 // Middleware
-app.use(cors());
+// app.use(cors()); // 기존의 일반적인 cors 사용 대신 아래와 같이 특정 origin을 지정
+
+const corsOptions = {
+  origin: 'https://xsachin.netlify.app', // Netlify 프론트엔드 앱의 주소
+  optionsSuccessStatus: 200 // 일부 레거시 브라우저(IE11, 다양한 SmartTV)는 204 대신 200을 반환해야 함
+};
+app.use(cors(corsOptions));
+
 app.use(express.json());
 // 정적 파일 (CSS, 클라이언트 JS 등) 제공 설정
 app.use(express.static(path.join(__dirname, '')));
