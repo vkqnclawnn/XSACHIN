@@ -2,42 +2,42 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
-const { MongoClient, ServerApiVersion } = require('mongodb');
-require('dotenv').config(); // .env 파일을 사용하기 위해 dotenv 패키지를 불러옵니다 (로컬 개발 시 유용)
+const path = require('path'); // path 모듈 추가
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 중요: <db_password>를 실제 데이터베이스 사용자의 비밀번호로 바꾸세요!
-// 이미지에서 제공된 연결 문자열을 사용합니다.
-const uri = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI; // .env 파일의 MONGODB_URI 사용
 
-if (!uri) {
+if (!MONGODB_URI) {
   console.error("MongoDB URI가 설정되지 않았습니다. MONGODB_URI 환경 변수를 확인해주세요.");
-  process.exit(1); // URI가 없으면 애플리케이션을 종료합니다.
+  process.exit(1);
 }
 
-// MongoClient 인스턴스를 생성합니다.
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
 // Middleware
-app.use(cors()); // Consider restricting origin in production
+app.use(cors());
 app.use(express.json());
+// 정적 파일 (CSS, 클라이언트 JS 등) 제공 설정
+app.use(express.static(path.join(__dirname, '')));
 
-// MongoDB Connection (replace with your MongoDB Atlas URI or Render's MongoDB service URI)
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/xsachin_test';
-mongoose.connect(MONGO_URI, {
+
+// MongoDB Connection with Mongoose
+mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
-.then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error('MongoDB connection error:', err));
+.then(() => {
+    console.log('MongoDB connected successfully');
+    // 데이터베이스 연결 성공 후 서버 시작
+    app.listen(PORT, () => {
+        console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
+    });
+})
+.catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1); // 연결 실패 시 프로세스 종료
+});
 
 // Test Result Schema
 const testResultSchema = new mongoose.Schema({
@@ -144,21 +144,14 @@ app.get('/api/test/pair/:originalTestId', async (req, res) => {
     }
 });
 
-// 기본 라우트 (테스트용)
+// 기본 라우트: index.html 파일 제공
 app.get('/', (req, res) => {
-    res.send('X사친 테스트 백엔드 서버입니다!');
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 서버 시작 전에 데이터베이스 연결
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
-  });
-}).catch(console.error);
-
-// 애플리케이션 종료 시 MongoDB 연결 해제 (선택 사항, 서버 환경에 따라 다름)
+// 애플리케이션 종료 시 MongoDB 연결 해제
 process.on('SIGINT', async () => {
   console.log('서버 종료 중... MongoDB 연결을 닫습니다.');
-  await client.close();
+  await mongoose.connection.close(); // Mongoose 연결 사용
   process.exit(0);
 });
