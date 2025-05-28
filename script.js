@@ -60,11 +60,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Placeholder questions (replace with actual questions and scoring logic)
     const questions = [
-        { text: "애인이 이성친구와 단둘이 저녁 식사를 하는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
-        { text: "애인이 이성친구와 밤늦게까지 메신저로 대화하는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
-        { text: "애인이 이성친구와 단둘이 영화를 보러 가는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
-        { text: "애인이 이성친구의 고민을 들어주며 위로해주는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
-        { text: "애인이 이성친구와 가벼운 신체 접촉(하이파이브, 어깨동무 등)을 하는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
+        { text: "애인이 X사친과 단둘이 저녁 식사를 하는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
+        { text: "애인이 X사친과 밤늦게까지 메신저로 대화하는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
+        { text: "애인이 X사친과 단둘이 영화를 보러 가는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
+        { text: "애인이 X사친과 고민을 들어주며 위로해주는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
+        { text: "애인이 X사친과 가벼운 신체 접촉(하이파이브, 어깨동무 등)을 하는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
     ];
 
     function initializeTest() {
@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     submitDaysButton.addEventListener('click', () => {
+
         clearInterval(surpriseTimerInterval); // 현재 인터벌 정지
         const currentElapsedTime = Math.floor((Date.now() - surpriseStartTime) / 1000); // 현재까지 흐른 시간 기록
         const daysInputValue = daysInputField.value.trim();
