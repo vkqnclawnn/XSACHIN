@@ -165,67 +165,25 @@ input[type="text"], select {
 #share-link {
     width: calc(100% - 120px); /* Adjust width to fit button */
     margin-right: 10px;
+    margin-bottom: 10px; /* 링크 입력창과 버튼 사이의 간격을 위해 아래쪽 마진 추가 */
 }
 
 #copy-link-button {
-    padding: 10px 15px;
+    /* padding: 10px 15px; */ /* .button 클래스에서 패딩 처리 */
+    /* margin-left: 10px; */ /* .button 클래스의 auto 마진으로 중앙 정렬되므로, 특정 상황 아니면 불필요 */
+    margin-top: 5px; /* 링크 입력창과의 간격을 줄이기 위해 위쪽 마진 조정 (기존 .button의 20px 대신) */
+    /* margin-bottom: 20px; */ /* .button 클래스의 기본값 사용 또는 필요시 조정 */
+    /* margin-left: auto; */ /* .button 클래스의 기본값 사용 */
+    /* margin-right: auto; */ /* .button 클래스의 기본값 사용 */
+    /* display: flex; 는 .button 클래스에 이미 있음 */
+    /* width: fit-content; 는 .button 클래스에 이미 있음 */
 }
 
-.result-comparison {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 20px;
-    text-align: left;
+#partner-result-prompt p {
+    color: #333; /* 기본 텍스트 색상 */
+    margin-bottom: 10px;
 }
 
-.result-comparison > div {
-    background-color: #e0f2f1; /* Lightest teal */
-    padding: 15px;
-    border-radius: 5px;
-    width: 45%;
-    border: 1px solid #80cbc4;
-}
-
-.result-comparison h3 {
-    color: #00695c;
-    margin-top: 0;
-}
-
-footer {
-    margin-top: 30px;
-    font-size: 0.9em;
-    color: #004d40;
-}
-
-/* From Uiverse.io by Yaya12085 - 적용할 버튼 스타일 */
-.button { /* 또는 #start-button 으로 직접 지정 가능 */
-  width: fit-content;
-  display: flex;
-  cursor: pointer;
-  gap: 0.4rem;
-  font-weight: bold;
-  border-radius: 7px;
-  text-shadow: 2px 2px 3px rgb(136 0 136 / 50%);
-  background: linear-gradient(15deg, #880088, #aa2068, #cc3f47, #de6f3d, #f09f33, #de6f3d, #cc3f47, #aa2068, #880088) no-repeat;
-  background-size: 300%;
-  color: #fff;
-  border: none;
-  background-position: left center;
-  box-shadow: 0 30px 10px -20px rgba(0,0,0,.2);
-  transition: background .3s ease;
-  margin: 20px auto; /* 버튼을 섹션 중앙에 위치시키기 위한 추가 (선택 사항) */
-}
-
-.button:hover {
-  background-size: 320%;
-  background-position: right center;
-}
-
-/* 
-  SVG 아이콘이 버튼 내부에 있다면 아래 스타일이 적용됩니다.
-  현재 "테스트 시작" 버튼에는 SVG가 없으므로, 이 부분은 시각적인 변화를 주지 않습니다.
-} 만약 SVG 아이콘이 버튼 내부에 추가된다면, 아래 주석을 해제하고 아이콘에 맞는 스타일을 추가하세요.
-*/
 /* 
   SVG 아이콘이 버튼 내부에 있다면 아래 스타일이 적용됩니다.
   현재 "테스트 시작" 버튼에는 SVG가 없으므로, 이 부분은 시각적인 변화를 주지 않습니
@@ -238,3 +196,27 @@ footer {
   transform: translateX(4px);
 }
 */
+/* From Uiverse.io by Yaya12085 - 적용할 버튼 스타일 */
+.button { /* 또는 #start-button 으로 직접 지정 가능 */
+  width: fit-content;
+  display: flex;
+  padding: 0.8em 1.2em; /* 패딩을 약간 조정하여 버튼 크기를 조절할 수 있습니다. */
+  cursor: pointer;
+  gap: 0.4rem;
+  font-weight: bold;
+  border-radius: 7px;
+  text-shadow: 2px 2px 3px rgb(136 0 136 / 50%);
+  background: linear-gradient(15deg, #880088, #aa2068, #cc3f47, #de6f3d, #f09f33, #de6f3d, #cc3f47, #aa2068, #880088) no-repeat;
+  background-size: 300%;
+  color: #fff;
+  border: none;
+  background-position: left center;
+  box-shadow: 0 15px 10px -10px rgba(0,0,0,.2); /* 그림자 조정 */
+  transition: background .3s ease;
+  margin: 10px auto; /* 버튼의 기본 상하 마진을 줄임 (예: 10px) */
+}
+
+.button:hover {
+  background-size: 320%;
+  background-position: right center;
+}
