@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Buttons
     const startButton = document.getElementById('start-button');
-    const nextQuestionButton = document.getElementById('next-question-button');
+    // const nextQuestionButton = document.getElementById('next-question-button'); // 이전 ID
+    const prevQuestionButton = document.getElementById('prev-question-button'); // 새 ID로 변경 (HTML도 수정 필요)
     const copyLinkButton = document.getElementById('copy-link-button');
     const restartButton = document.getElementById('restart-button');
     const submitDaysButton = document.getElementById('submit-days-button');
@@ -58,13 +59,108 @@ document.addEventListener('DOMContentLoaded', () => {
     let partnerDaysMet = null;
     let partnerTimeTakenDays = null;
 
-    // Placeholder questions (replace with actual questions and scoring logic)
+    // Updated questions array with 10 questions, reordered by perceived sensitivity, and updated options
     const questions = [
-        { text: "애인이 X사친과 단둘이 저녁 식사를 하는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
-        { text: "애인이 X사친과 밤늦게까지 메신저로 대화하는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
-        { text: "애인이 X사친과 단둘이 영화를 보러 가는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
-        { text: "애인이 X사친과 고민을 들어주며 위로해주는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
-        { text: "애인이 X사친과 가벼운 신체 접촉(하이파이브, 어깨동무 등)을 하는 것은 괜찮다.", options: [{ text: "매우 그렇다", score: 4 }, { text: "그렇다", score: 3 }, { text: "보통이다", score: 2 }, { text: "아니다", score: 1 }, { text: "절대 아니다", score: 0 }] },
+        { // 1. 가장 일반적인 소통
+            text: "애인이 X사친과 밤늦게까지 메신저로 대화하는 것은 괜찮다.",
+            options: [
+                { text: "전혀 상관없다", score: 4 },
+                { text: "가끔은 괜찮다", score: 3 },
+                { text: "자주는 좀 그렇다", score: 2 },
+                { text: "왠만하면 안 했으면 좋겠다", score: 1 },
+                { text: "절대 안 된다", score: 0 }
+            ]
+        },
+        { // 2. 고민 상담
+            text: "애인이 X사친과 고민을 들어주며 위로해주는 것은 괜찮다.",
+            options: [
+                { text: "얼마든지 괜찮다", score: 4 },
+                { text: "필요하다면 그럴 수 있다", score: 3 },
+                { text: "가끔은 괜찮지만, 나한테 먼저 말했으면 좋겠다", score: 2 },
+                { text: "왠만하면 나하고만 했으면 좋겠다", score: 1 },
+                { text: "절대 안 된다", score: 0 }
+            ]
+        },
+        { // 3. 별명 사용
+            text: "애인이 X사친과 별명으로 친근하게 부를 수 있다.",
+            options: [
+                { text: "전혀 신경 안 쓴다", score: 4 },
+                { text: "그럴 수 있다고 생각한다", score: 3 },
+                { text: "우리 둘만 아는 애칭이 아니라면 괜찮다", score: 2 },
+                { text: "좀 거슬린다", score: 1 },
+                { text: "절대 안 된다", score: 0 }
+            ]
+        },
+        { // 4. 선물 교환
+            text: "애인이 X사친과 생일이나 기념일 선물을 챙겨줄 수 있다.",
+            options: [
+                { text: "얼마든지 괜찮다", score: 4 },
+                { text: "가벼운 선물 정도는 괜찮다", score: 3 },
+                { text: "상황 봐서 괜찮을 수도 있다", score: 2 },
+                { text: "왠만하면 안 했으면 좋겠다", score: 1 },
+                { text: "절대 안 된다", score: 0 }
+            ]
+        },
+        { // 5. 가벼운 신체 접촉
+            text: "애인이 X사친과 가벼운 신체 접촉(하이파이브, 어깨동무 등)을 하는 것은 괜찮다.",
+            options: [
+                { text: "전혀 신경 안 쓴다", score: 4 },
+                { text: "하이파이브 정도는 괜찮다", score: 3 },
+                { text: "상황에 따라 다를 것 같다", score: 2 },
+                { text: "좀 불편하다", score: 1 },
+                { text: "절대 안 된다", score: 0 }
+            ]
+        },
+        { // 6. 단둘이 식사
+            text: "애인이 X사친과 단둘이 저녁 식사를 하는 것은 괜찮다.",
+            options: [
+                { text: "매우 괜찮다", score: 4 },
+                { text: "가끔은 괜찮다", score: 3 },
+                { text: "점심 정도면 괜찮다", score: 2 },
+                { text: "왠만하면 안 했으면 좋겠다", score: 1 },
+                { text: "절대 안 된다", score: 0 }
+            ]
+        },
+        { // 7. 단둘이 영화
+            text: "애인이 X사친과 단둘이 영화를 보러 가는 것은 괜찮다.",
+            options: [
+                { text: "매우 괜찮다", score: 4 },
+                { text: "친한 사이면 그럴 수 있다", score: 3 },
+                { text: "썩 내키지는 않는다", score: 2 },
+                { text: "왠만하면 안 갔으면 좋겠다", score: 1 },
+                { text: "절대 안 된다", score: 0 }
+            ]
+        },
+        { // 8. 커플룩 의심
+            text: "애인이 X사친과 커플룩처럼 보이는 옷(예: 같은 브랜드, 같은 색상)을 맞춰 입고 단체 모임에 참석 할 수 있다.",
+            options: [
+                { text: "전혀 신경 안 쓴다, 우연일 수도 있다", score: 4 },
+                { text: "신경은 쓰이지만 그럴 수도 있다", score: 3 },
+                { text: "썩 기분 좋지는 않다", score: 2 },
+                { text: "절대 안 된다고 생각한다", score: 1 },
+                { text: "상상도 하기 싫다", score: 0 }
+            ]
+        },
+        { // 9. 휴대폰 배경화면
+            text: "애인이 X사친과 함께 찍은 셀카를 자신의 휴대폰 배경화면으로 설정할 수 있다.",
+            options: [
+                { text: "전혀 상관없다", score: 4 },
+                { text: "단체 사진이면 괜찮다", score: 3 },
+                { text: "단둘이 찍은 거라면 좀 그렇다", score: 2 },
+                { text: "절대 안 된다", score: 1 },
+                { text: "이건 선 넘었다", score: 0 }
+            ]
+        },
+        { // 10. 데이트 약속 변경
+            text: "애인이 X사친과의 약속 때문에 당신과의 데이트를 미룰 수 있다.",
+            options: [
+                { text: "정말 중요한 일이면 그럴 수 있다", score: 4 },
+                { text: "가끔은 그럴 수 있다", score: 3 },
+                { text: "이해는 하지만 기분 나쁘다", score: 2 },
+                { text: "절대 안 된다", score: 1 },
+                { text: "있을 수 없는 일이다", score: 0 }
+            ]
+        }
     ];
 
     function initializeTest() {
@@ -158,34 +254,46 @@ document.addEventListener('DOMContentLoaded', () => {
             question.options.forEach(option => {
                 const button = document.createElement('button');
                 button.textContent = option.text;
-                button.onclick = () => selectAnswer(option.score);
+                button.onclick = () => selectAnswer(option.score, option.text); // 답변 텍스트도 전달 (선택 사항)
                 answerOptionsContainer.appendChild(button);
             });
-            nextQuestionButton.classList.add('hidden'); // Hide next button until an answer is selected
+            // nextQuestionButton.classList.add('hidden'); // 이전 로직
+            if (currentQuestionIndex > 0) {
+                prevQuestionButton.classList.remove('hidden');
+            } else {
+                prevQuestionButton.classList.add('hidden');
+            }
         } else {
             finishTest();
         }
     }
 
-    function selectAnswer(score) {
+    function selectAnswer(score, answerText) { // answerText는 userAnswers에 저장할 경우 필요
         userScore += score;
-        userAnswers.push(score); // Or more detailed answer object
-        
-        // Highlight selected answer or provide feedback (optional)
-        // For now, just enable Next button or directly go to next question
+        // userAnswers에 점수와 함께 선택한 답변 텍스트도 저장할 수 있습니다.
+        // userAnswers.push({ score: score, text: answerText }); 
+        userAnswers.push(score); // 현재는 점수만 저장
         
         currentQuestionIndex++;
         if (currentQuestionIndex < questions.length) {
             displayQuestion();
         } else {
+            prevQuestionButton.classList.add('hidden'); // 마지막 질문 후에는 이전 버튼 숨김
             finishTest();
         }
     }
 
-    // nextQuestionButton.addEventListener('click', () => {
-    //     currentQuestionIndex++;
-    //     displayQuestion();
-    // }); // This button might not be needed if answers directly trigger next question
+    // prevQuestionButton 이벤트 리스너 추가
+    prevQuestionButton.addEventListener('click', () => {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            const lastAnswerScore = userAnswers.pop(); // 마지막 답변 점수 가져오고 배열에서 제거
+            if (typeof lastAnswerScore === 'number') { // 또는 userAnswers에 객체를 저장했다면 객체 구조에 맞게 수정
+                userScore -= lastAnswerScore;
+            }
+            displayQuestion();
+        }
+    });
 
     async function finishTest() {
         testScreen.classList.add('hidden');
@@ -355,12 +463,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function getResultSummary(score) {
-        const maxScore = questions.length * 4; // Assuming max score per question is 4
-        if (score >= maxScore * 0.8) return "간디도 절레절레할 정도의 관대함";
-        if (score >= maxScore * 0.6) return "관대한척하는 컨셉?";
-        if (score >= maxScore * 0.4) return "준수하지만 질투가 필요해";
-        if (score >= maxScore * 0.2) return "질투쟁이 끝판왕임";
-        return "질투심이 매우 강함";
+        // 총 10문제, 문제당 최대 4점, 총점 40점 기준
+        if (score >= 32) return "간디도 절레절레할 정도의 관대함 (32-40점)"; // 80% 이상
+        if (score >= 24) return "관대한척하는 컨셉? (24-31점)";       // 60% 이상
+        if (score >= 16) return "준수하지만 질투가 필요해 (16-23점)";   // 40% 이상
+        if (score >= 8) return "질투와 사랑의 크기가 비례 (8-15점)";        // 20% 이상
+        return "끝판왕 질투쟁이이자 사랑꾼 (0-7점)";                     // 20% 미만
     }
 
     copyLinkButton.addEventListener('click', () => {
@@ -376,6 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultScreen.classList.add('hidden');
         combinedResultScreen.classList.add('hidden');
         surpriseQuestionScreen.classList.add('hidden'); // Ensure surprise screen is hidden
+        prevQuestionButton.classList.add('hidden'); // 이전 질문 버튼도 숨김
 
         window.history.pushState({}, document.title, window.location.pathname); // Clear query params
         
