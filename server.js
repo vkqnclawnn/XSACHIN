@@ -49,8 +49,10 @@ const testResultSchema = new mongoose.Schema({
     participantType: { type: String, enum: ['partner1', 'partner2'], required: true },
     score: { type: Number, required: true },
     resultSummary: { type: String, required: true },
-    isSharedLinkOrigin: { type: Boolean, default: false }, // True if this is the first test in a pair
-    linkedTestId: { type: String, default: null }, // Stores the testId of the partner1 (if this is partner2's test)
+    isSharedLinkOrigin: { type: Boolean, default: false },
+    linkedTestId: { type: String, default: null },
+    daysMet: { type: Number, default: null }, // <--- 이 필드가 있는지 확인!
+    timeTakenDays: { type: Number, default: null }, // <--- 이 필드가 있는지 확인!
     createdAt: { type: Date, default: Date.now },
 });
 
@@ -60,11 +62,16 @@ const TestResult = mongoose.model('TestResult', testResultSchema);
 // POST: Create a new test result
 app.post('/api/test', async (req, res) => {
     try {
-        const { score, resultSummary, participantType, linkedTestId: clientLinkedTestId } = req.body;
+        // daysMet와 timeTakenDays를 req.body에서 추출
+        const { score, resultSummary, participantType, linkedTestId: clientLinkedTestId, daysMet, timeTakenDays } = req.body;
 
         if (typeof score !== 'number' || !resultSummary || !participantType) {
             return res.status(400).json({ message: 'Missing required fields: score, resultSummary, participantType' });
         }
+        // daysMet와 timeTakenDays에 대한 유효성 검사도 추가할 수 있습니다 (예: 숫자인지).
+        // if (typeof daysMet !== 'number' || typeof timeTakenDays !== 'number') {
+        //     return res.status(400).json({ message: 'daysMet and timeTakenDays must be numbers.' });
+        // }
         
         const newTestId = uuidv4();
         let isOrigin = false;
@@ -72,10 +79,7 @@ app.post('/api/test', async (req, res) => {
 
         if (participantType === 'partner1') {
             isOrigin = true;
-            // For partner1, clientLinkedTestId should be null or not provided
         } else if (participantType === 'partner2' && clientLinkedTestId) {
-            // This is partner2, using a link from partner1
-            // Check if partner1's test exists
             const partner1Test = await TestResult.findOne({ testId: clientLinkedTestId, isSharedLinkOrigin: true });
             if (!partner1Test) {
                 return res.status(404).json({ message: 'Original test for sharing not found or invalid.' });
@@ -83,14 +87,8 @@ app.post('/api/test', async (req, res) => {
             finalLinkedTestId = clientLinkedTestId;
             isOrigin = false;
         } else if (participantType === 'partner2' && !clientLinkedTestId) {
-            // Partner2 trying to submit without a linkedTestId - this might be an edge case or error
-            // For now, let's treat it as a standalone test, but it won't be pairable later via this flow.
-            // Or, you could enforce that partner2 MUST have a linkedTestId.
-            // For simplicity, let's allow it but it won't be "linked" in the typical shared flow.
-            // isOrigin = true; // Or handle as an error:
             return res.status(400).json({ message: 'Partner2 must provide a linkedTestId from a shared link.' });
         }
-
 
         const newTestResult = new TestResult({
             testId: newTestId,
@@ -99,9 +97,13 @@ app.post('/api/test', async (req, res) => {
             resultSummary,
             isSharedLinkOrigin: isOrigin,
             linkedTestId: finalLinkedTestId,
+            daysMet: daysMet !== undefined ? daysMet : null, // <--- 저장 로직에 추가
+            timeTakenDays: timeTakenDays !== undefined ? timeTakenDays : null, // <--- 저장 로직에 추가
         });
 
         await newTestResult.save();
+        // 저장된 전체 문서를 반환하거나, 필요한 정보만 선택하여 반환할 수 있습니다.
+        // newTestResult 객체에는 daysMet와 timeTakenDays가 포함되어 있을 것입니다.
         res.status(201).json(newTestResult);
 
     } catch (error) {
