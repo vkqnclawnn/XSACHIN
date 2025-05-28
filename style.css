@@ -168,12 +168,7 @@ input[type="text"], select {
 }
 
 #copy-link-button {
-    /* padding: 10px 15px; */ /* .button 클래스에서 패딩 처리 */
-    margin-left: 10px; /* 예시: input 옆에 적절한 간격을 주기 위해 */
-}
-
-#partner-result-prompt p {
-    margin-top: 10px;
+    padding: 10px 15px;
 }
 
 .result-comparison {
@@ -202,7 +197,7 @@ footer {
     color: #004d40;
 }
 
-/* From Uiverse.io by Yaya12085 - 적용할 버튼 스타일 */ 
+/* From Uiverse.io by Yaya12085 - 적용할 버튼 스타일 */
 .button { /* 또는 #start-button 으로 직접 지정 가능 */
   width: fit-content;
   display: flex;
@@ -218,7 +213,7 @@ footer {
   background-position: left center;
   box-shadow: 0 30px 10px -20px rgba(0,0,0,.2);
   transition: background .3s ease;
-  margin: -10px auto; /* 버튼을 섹션 중앙에 위치시키기 위한 추가 (선택 사항) */
+  margin: 20px auto; /* 버튼을 섹션 중앙에 위치시키기 위한 추가 (선택 사항) */
 }
 
 .button:hover {
@@ -228,7 +223,7 @@ footer {
 
 /* 
   SVG 아이콘이 버튼 내부에 있다면 아래 스타일이 적용됩니다.
-  현재 "테스트 시작" 버튼에는 SVG가 없으므로, 이 부분은 시각적인 변화를 주지지 않습니다.
+  현재 "테스트 시작" 버튼에는 SVG가 없으므로, 이 부분은 시각적인 변화를 주지 않습니다.
 } 만약 SVG 아이콘이 버튼 내부에 추가된다면, 아래 주석을 해제하고 아이콘에 맞는 스타일을 추가하세요.
 */
 /* 
