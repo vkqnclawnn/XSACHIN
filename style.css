@@ -131,7 +131,7 @@ button:hover {
     display: block;
     width: 100%;
     margin-bottom: 10px;
-    background-color: #4d94e3; /* 요청하신 색상으로 변경 */
+    background-color: #c04242; /* 요청하신 색상으로 변경 */
     color: white; /* 배경색이 어두워졌으므로 글자색을 흰색으로 변경 (가독성) */
     border: none; /* .button 스타일과 유사하게 테두리 제거 */
     padding: 10px 15px; /* 패딩 조정 */
@@ -142,7 +142,7 @@ button:hover {
 }
 
 #answer-options button:hover {
-    background-color: #3a7bc8; /* 호버 시 약간 더 어두운 파란색 (예시) */
+    background-color: #a53838; /* 호버 시 약간 더 어두운 빨간색 계열 (예시) */
     transform: translateY(-2px); /* 살짝 위로 올라가는 효과 (선택 사항) */
 }
 
