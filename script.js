@@ -115,17 +115,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     submitDaysButton.addEventListener('click', () => {
-        clearInterval(surpriseTimerInterval);
-        surpriseTimeTaken = parseInt(daysInputTimerDisplay.textContent, 10);
-        const daysInputValue = daysInputField.value.trim(); // 공백 제거
+        clearInterval(surpriseTimerInterval); // 현재 인터벌 정지
+        const currentElapsedTime = Math.floor((Date.now() - surpriseStartTime) / 1000); // 현재까지 흐른 시간 기록
+        const daysInputValue = daysInputField.value.trim();
 
         if (daysInputValue === "" || isNaN(parseInt(daysInputValue, 10)) || parseInt(daysInputValue, 10) <= 0) {
             alert('유효한 날짜를 입력해주세요. (숫자만 입력)');
-            // 유효하지 않은 입력 시 타이머를 다시 시작하거나 필드에 포커스를 줄 수 있습니다.
-            daysInputTimerDisplay.textContent = surpriseTimeTaken; // 정지된 시간으로 유지하거나, 0으로 리셋 후 재시작
-            // startSurpriseTimer(); // 필요하다면 타이머 재시작
+            
+            // alert 창 이후, 타이머를 이어서 시작합니다.
+            // surpriseStartTime을 조정하여 이전에 흘렀던 시간을 반영합니다.
+            surpriseStartTime = Date.now() - (currentElapsedTime * 1000); 
+
+            surpriseTimerInterval = setInterval(() => {
+                const elapsedTime = Math.floor((Date.now() - surpriseStartTime) / 1000);
+                daysInputTimerDisplay.textContent = elapsedTime;
+            }, 1000);
             return;
         }
+        // 유효한 입력인 경우, 최종 시간을 기록합니다.
+        surpriseTimeTaken = currentElapsedTime; // 또는 parseInt(daysInputTimerDisplay.textContent, 10);
         userDaysMet = parseInt(daysInputValue, 10);
 
         surpriseQuestionScreen.classList.add('hidden');
@@ -347,10 +355,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getResultSummary(score) {
         const maxScore = questions.length * 4; // Assuming max score per question is 4
-        if (score >= maxScore * 0.8) return "매우 관대함";
-        if (score >= maxScore * 0.6) return "약간 관대함";
-        if (score >= maxScore * 0.4) return "보통";
-        if (score >= maxScore * 0.2) return "질투심이 약간 있음";
+        if (score >= maxScore * 0.8) return "간디도 절레절레할 정도의 관대함";
+        if (score >= maxScore * 0.6) return "관대한척하는 컨셉?";
+        if (score >= maxScore * 0.4) return "준수하지만 질투가 필요해";
+        if (score >= maxScore * 0.2) return "질투쟁이 끝판왕임";
         return "질투심이 매우 강함";
     }
 
