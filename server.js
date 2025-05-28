@@ -128,36 +128,41 @@ app.get('/api/test/:testId', async (req, res) => {
 app.get('/api/test/pair/:originalTestId', async (req, res) => {
     try {
         const { originalTestId } = req.params;
-        const partner1TestDoc = await TestResult.findById(originalTestId);
+        // TestResult.findById(originalTestId) 대신 findOne({ testId: ... }) 사용
+        const partner1TestDoc = await TestResult.findOne({ testId: originalTestId });
 
         if (!partner1TestDoc) {
             return res.status(404).json({ message: 'Original test result not found.' });
         }
 
+        // partner2TestDoc를 찾을 때도 originalTestId는 partner1의 testId를 의미합니다.
+        // linkedTestId 필드가 partner1의 testId를 저장하고 있으므로, 이 부분은 그대로 둡니다.
         const partner2TestDoc = await TestResult.findOne({
-            linkedTestId: originalTestId,
+            linkedTestId: originalTestId, // partner1의 testId
             participantType: 'partner2'
         });
 
         // 응답 객체 구성 시 daysMet와 timeTakenDays를 명시적으로 포함
         const partner1Response = {
+            testId: partner1TestDoc.testId, // 응답에 testId도 포함시켜주면 좋음
             score: partner1TestDoc.score,
             resultSummary: partner1TestDoc.resultSummary,
-            participantType: partner1TestDoc.participantType, // 필요하다면 추가
-            // ... 기타 partner1TestDoc에서 필요한 필드들 ...
-            daysMet: partner1TestDoc.daysMet, // <--- 이 필드를 포함해야 합니다.
-            timeTakenDays: partner1TestDoc.timeTakenDays // <--- 이 필드를 포함해야 합니다.
+            participantType: partner1TestDoc.participantType,
+            daysMet: partner1TestDoc.daysMet,
+            timeTakenDays: partner1TestDoc.timeTakenDays
+            // ... 기타 필요한 partner1TestDoc에서 필요한 필드들 ...
         };
 
         let partner2Response = null;
         if (partner2TestDoc) {
             partner2Response = {
+                testId: partner2TestDoc.testId, // 응답에 testId도 포함시켜주면 좋음
                 score: partner2TestDoc.score,
                 resultSummary: partner2TestDoc.resultSummary,
-                participantType: partner2TestDoc.participantType, // 필요하다면 추가
-                // ... 기타 partner2TestDoc에서 필요한 필드들 ...
-                daysMet: partner2TestDoc.daysMet, // <--- 이 필드를 포함해야 합니다.
-                timeTakenDays: partner2TestDoc.timeTakenDays // <--- 이 필드를 포함해야 합니다.
+                participantType: partner2TestDoc.participantType,
+                daysMet: partner2TestDoc.daysMet,
+                timeTakenDays: partner2TestDoc.timeTakenDays
+                // ... 기타 필요한 partner2TestDoc에서 필요한 필드들 ...
             };
         }
 
@@ -177,7 +182,12 @@ app.get('/api/test/pair/:originalTestId', async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching paired results:', error);
-        res.status(500).json({ message: 'Server error while fetching paired results', error: error.message });
+        // 오류 응답에 오류 객체의 name과 message를 포함시켜 더 자세한 정보 제공
+        res.status(500).json({ 
+            message: 'Server error while fetching paired results', 
+            errorName: error.name, 
+            errorMessage: error.message 
+        });
     }
 });
 
