@@ -254,6 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${API_BASE_URL}/test/pair/${originalTestId}`);
             const data = await response.json();
 
+            console.log('Combined results data from server:', data); // <--- 서버 응답 데이터 확인
+
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to fetch combined results');
             }
@@ -261,26 +263,67 @@ document.addEventListener('DOMContentLoaded', () => {
             const partner1Result = data.partner1Test;
             const partner2Result = data.partner2Test;
 
+            console.log('Partner 1 Result (from server):', partner1Result); // <--- partner1 데이터 확인
+            console.log('Partner 2 Result (from server):', partner2Result); // <--- partner2 데이터 확인
+
             if (partner1Result && partner2Result) {
                 // 현재 사용자는 partner2라고 가정 (공유 링크를 통해 접속했으므로)
                 // '나의 결과'는 partner2, '애인의 결과'는 partner1
                 myScoreCombined.textContent = partner2Result.score;
                 mySummaryCombined.textContent = partner2Result.resultSummary;
-                myDaysCombinedDisplay.textContent = partner2Result.daysMet !== null ? partner2Result.daysMet : '입력 안함'; // partner2의 사귄 날짜
-                myTimeDaysCombinedDisplay.textContent = partner2Result.timeTakenDays !== null ? partner2Result.timeTakenDays : 'N/A'; // partner2의 입력 시간
+
+                // partner2Result.daysMet와 partner2Result.timeTakenDays가 undefined가 아닌지 확인
+                if (typeof partner2Result.daysMet !== 'undefined' && partner2Result.daysMet !== null) {
+                    myDaysCombinedDisplay.textContent = partner2Result.daysMet;
+                } else {
+                    myDaysCombinedDisplay.textContent = '입력 안함'; // 또는 'N/A'
+                }
+
+                if (typeof partner2Result.timeTakenDays !== 'undefined' && partner2Result.timeTakenDays !== null) {
+                    myTimeDaysCombinedDisplay.textContent = partner2Result.timeTakenDays;
+                } else {
+                    myTimeDaysCombinedDisplay.textContent = 'N/A';
+                }
 
                 partnerScoreCombined.textContent = partner1Result.score;
                 partnerSummaryCombined.textContent = partner1Result.resultSummary;
                 // partner1의 정보는 URL 파라미터에서 가져온 값을 우선 사용하거나, 서버 응답을 사용
-                partnerDaysCombinedDisplay.textContent = partnerDaysMet !== null ? partnerDaysMet : (partner1Result.daysMet !== null ? partner1Result.daysMet : '입력 안함');
-                partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays !== null ? partnerTimeTakenDays : (partner1Result.timeTakenDays !== null ? partner1Result.timeTakenDays : 'N/A');
+                // partnerDaysMet는 URL에서 가져온 값, partnerTimeTakenDays도 URL에서 가져온 값
+                if (partnerDaysMet !== null) { // URL 파라미터에 partner1의 days 정보가 있다면 사용
+                    partnerDaysCombinedDisplay.textContent = partnerDaysMet;
+                } else if (typeof partner1Result.daysMet !== 'undefined' && partner1Result.daysMet !== null) {
+                    partnerDaysCombinedDisplay.textContent = partner1Result.daysMet;
+                } else {
+                    partnerDaysCombinedDisplay.textContent = '입력 안함';
+                }
+
+                if (partnerTimeTakenDays !== null) { // URL 파라미터에 partner1의 time 정보가 있다면 사용
+                    partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays;
+                } else if (typeof partner1Result.timeTakenDays !== 'undefined' && partner1Result.timeTakenDays !== null) {
+                    partnerTimeDaysCombinedDisplay.textContent = partner1Result.timeTakenDays;
+                } else {
+                    partnerTimeDaysCombinedDisplay.textContent = 'N/A';
+                }
                 
                 resultScreen.classList.add('hidden'); 
                 combinedResultScreen.classList.remove('hidden');
 
             } else {
-                // 한쪽 결과가 없는 경우
-                throw new Error('두 참여자의 결과를 모두 가져오지 못했습니다.');
+                // 한쪽 결과가 없는 경우 (예: partner2가 아직 테스트를 완료하지 않음)
+                // 이 경우, partner1의 결과만 표시하거나, "애인이 아직 테스트를 완료하지 않았습니다."와 같은 메시지를 표시할 수 있습니다.
+                // 현재 코드는 partner1Result와 partner2Result가 모두 있어야 이 블록으로 들어옵니다.
+                // 만약 data.partner2Test가 null일 수 있다면, 그에 대한 처리가 필요합니다.
+                console.log('One or both partner results are missing. Data:', data);
+                mySummaryCombined.textContent = "애인 또는 나의 결과 정보를 가져오는 데 실패했습니다.";
+                if (partner1Result) { // partner1 정보만 있는 경우
+                    partnerScoreCombined.textContent = partner1Result.score;
+                    partnerSummaryCombined.textContent = partner1Result.resultSummary;
+                    partnerDaysCombinedDisplay.textContent = partnerDaysMet !== null ? partnerDaysMet : (partner1Result.daysMet !== null ? partner1Result.daysMet : '입력 안함');
+                    partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays !== null ? partnerTimeTakenDays : (partner1Result.timeTakenDays !== null ? partner1Result.timeTakenDays : 'N/A');
+                }
+                // throw new Error('두 참여자의 결과를 모두 가져오지 못했습니다.'); // 이 부분은 상황에 따라 조정
+                resultScreen.classList.add('hidden'); 
+                combinedResultScreen.classList.remove('hidden');
             }
 
         } catch (error) {
