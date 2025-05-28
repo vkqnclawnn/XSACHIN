@@ -19,6 +19,15 @@
                 <button id="start-button" class="button">테스트 시작</button>
             </section>
 
+            <!-- 새로운 깜짝 질문 섹션 -->
+            <section id="surprise-question-screen" class="hidden">
+                <h2>깜짝 질문!</h2>
+                <p>오늘 사귀고 며칠이 지났나요?</p>
+                <p>입력 시간: <span id="days-input-timer">0</span>초</p>
+                <input type="number" id="days-input-field" placeholder="예: 100">
+                <button id="submit-days-button" class="button">입력 완료</button>
+            </section>
+
             <section id="test-screen" class="hidden">
                 <h2 id="question-title">질문</h2>
                 <p id="question-text"></p>
@@ -52,14 +61,18 @@
                         <h3>나의 결과</h3>
                         <p>점수: <span id="my-score-combined"></span></p>
                         <p>요약: <span id="my-summary-combined"></span></p>
+                        <p>사귄 날짜: <span id="my-days-combined"></span>일</p>
+                        <p>날짜 입력까지 걸린 시간: <span id="my-time-days-combined"></span>초</p>
                     </div>
                     <div id="partner-result-combined">
                         <h3>애인의 결과</h3>
                         <p>점수: <span id="partner-score-combined"></span></p>
                         <p>요약: <span id="partner-summary-combined"></span></p>
+                        <p>사귄 날짜: <span id="partner-days-combined"></span>일</p>
+                        <p>날짜 입력까지 걸린 시간: <span id="partner-time-days-combined"></span>초</p>
                     </div>
                 </div>
-                <button id="restart-button">다시 테스트하기</button>
+                <button id="restart-button" class="button">다시 테스트하기</button>
             </section>
         </main>
 

@@ -7,12 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const testScreen = document.getElementById('test-screen');
     const resultScreen = document.getElementById('result-screen');
     const combinedResultScreen = document.getElementById('combined-result-screen');
+    const surpriseQuestionScreen = document.getElementById('surprise-question-screen');
 
     // Buttons
     const startButton = document.getElementById('start-button');
     const nextQuestionButton = document.getElementById('next-question-button');
     const copyLinkButton = document.getElementById('copy-link-button');
     const restartButton = document.getElementById('restart-button');
+    const submitDaysButton = document.getElementById('submit-days-button');
 
     // Display elements
     const questionTitle = document.getElementById('question-title');
@@ -23,11 +25,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const shareSection = document.getElementById('share-section');
     const shareLinkInput = document.getElementById('share-link');
     const partnerResultPrompt = document.getElementById('partner-result-prompt');
+    const daysInputTimerDisplay = document.getElementById('days-input-timer');
+    const daysInputField = document.getElementById('days-input-field');
     
     const myScoreCombined = document.getElementById('my-score-combined');
     const mySummaryCombined = document.getElementById('my-summary-combined');
     const partnerScoreCombined = document.getElementById('partner-score-combined');
     const partnerSummaryCombined = document.getElementById('partner-summary-combined');
+    const myDaysCombinedDisplay = document.getElementById('my-days-combined');
+    const myTimeDaysCombinedDisplay = document.getElementById('my-time-days-combined');
+    const partnerDaysCombinedDisplay = document.getElementById('partner-days-combined');
+    const partnerTimeDaysCombinedDisplay = document.getElementById('partner-time-days-combined');
 
     // const participantTypeSelect = document.getElementById('participant-type'); // 제거됨
 
@@ -38,6 +46,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTestId = null; // For the first user
     let linkedTestId = null; // For the second user, this is the first user's testId
     let participantType = 'partner1'; // 기본값은 'partner1', URL 파라미터에 따라 변경될 수 있음
+
+    // Timer and surprise question state
+    let surpriseStartTime;
+    let surpriseTimerInterval;
+    let surpriseTimeTaken = 0;
+    let userDaysMet = null;
+
+    let partnerScore = null;
+    let partnerResultSummary = null;
+    let partnerDaysMet = null;
+    let partnerTimeTakenDays = null;
 
     // Placeholder questions (replace with actual questions and scoring logic)
     const questions = [
@@ -51,6 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function initializeTest() {
         const urlParams = new URLSearchParams(window.location.search);
         const sharedTestId = urlParams.get('test_id');
+        const p1Days = urlParams.get('days1'); // 파트너1(링크 생성자)의 사귄 날짜
+        const p1Time = urlParams.get('time1'); // 파트너1의 입력 시간
 
         if (sharedTestId) {
             linkedTestId = sharedTestId;
@@ -58,6 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // participantTypeSelect.value = 'partner2'; // 제거됨
             // participantTypeSelect.disabled = true; // 제거됨
             console.log("Opened via shared link. Linked Test ID:", linkedTestId, "Participant Type:", participantType);
+
+            if (p1Days && p1Time) {
+                partnerDaysMet = parseInt(p1Days, 10);
+                partnerTimeTakenDays = parseInt(p1Time, 10);
+                console.log("Partner's (P1) days met:", partnerDaysMet, "Time taken:", partnerTimeTakenDays);
+            }
         } else {
             participantType = 'partner1'; // 직접 접속 시 partner1로 설정
             console.log("New test session. Participant Type:", participantType);
@@ -65,16 +92,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     startButton.addEventListener('click', () => {
+        // currentQuestionIndex = 0; // submitDaysButton 클릭 리스너 내부로 이동
+        // userScore = 0; // submitDaysButton 클릭 리스너 내부로 이동
+        // userAnswers = []; // submitDaysButton 클릭 리스너 내부로 이동
+        startScreen.classList.add('hidden');
+        surpriseQuestionScreen.classList.remove('hidden'); // 깜짝 질문 화면 먼저 표시
+        daysInputField.value = ''; // 입력 필드 초기화
+        daysInputTimerDisplay.textContent = '0'; // 타이머 표시 초기화
+        startSurpriseTimer(); // 타이머 시작
+        // testScreen.classList.remove('hidden'); // 이 부분은 깜짝 질문 완료 후로 이동
+        resultScreen.classList.add('hidden');
+        combinedResultScreen.classList.add('hidden');
+        // displayQuestion(); // 이 부분도 깜짝 질문 완료 후로 이동
+    });
+
+    function startSurpriseTimer() {
+        surpriseStartTime = Date.now();
+        surpriseTimerInterval = setInterval(() => {
+            const elapsedTime = Math.floor((Date.now() - surpriseStartTime) / 1000);
+            daysInputTimerDisplay.textContent = elapsedTime;
+        }, 1000);
+    }
+
+    submitDaysButton.addEventListener('click', () => {
+        clearInterval(surpriseTimerInterval);
+        surpriseTimeTaken = parseInt(daysInputTimerDisplay.textContent, 10);
+        const daysInputValue = daysInputField.value.trim(); // 공백 제거
+
+        if (daysInputValue === "" || isNaN(parseInt(daysInputValue, 10)) || parseInt(daysInputValue, 10) <= 0) {
+            alert('유효한 날짜를 입력해주세요. (숫자만 입력)');
+            // 유효하지 않은 입력 시 타이머를 다시 시작하거나 필드에 포커스를 줄 수 있습니다.
+            daysInputTimerDisplay.textContent = surpriseTimeTaken; // 정지된 시간으로 유지하거나, 0으로 리셋 후 재시작
+            // startSurpriseTimer(); // 필요하다면 타이머 재시작
+            return;
+        }
+        userDaysMet = parseInt(daysInputValue, 10);
+
+        surpriseQuestionScreen.classList.add('hidden');
+        testScreen.classList.remove('hidden');
+        
+        // 테스트 시작 상태 초기화
         currentQuestionIndex = 0;
         userScore = 0;
         userAnswers = [];
-        // initializeTest()가 이미 호출되었으므로 participantType은 설정된 상태임
-        startScreen.classList.add('hidden');
-        testScreen.classList.remove('hidden');
-        resultScreen.classList.add('hidden');
-        combinedResultScreen.classList.add('hidden');
+        
         displayQuestion();
     });
+
 
     function displayQuestion() {
         if (currentQuestionIndex < questions.length) {
@@ -129,8 +193,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     score: userScore,
                     resultSummary: resultSummary,
-                    participantType: participantType, 
-                    linkedTestId: linkedTestId 
+                    participantType: participantType,
+                    linkedTestId: linkedTestId,
+                    daysMet: userDaysMet, // 깜짝 질문: 사귄 날짜 추가
+                    timeTakenDays: surpriseTimeTaken // 깜짝 질문: 입력 시간 추가
                 }),
             });
             const data = await response.json();
@@ -138,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to save test results');
             }
-            
+
             currentTestId = data.testId; // The ID of the test just taken
 
             if (participantType === 'partner1' && data.isSharedLinkOrigin) {
@@ -149,7 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 shareSection.classList.remove('hidden');
                 partnerResultPrompt.classList.remove('hidden');
-                const shareUrl = `${window.location.origin}${window.location.pathname}?test_id=${currentTestId}`;
+                // 공유 URL에 깜짝 질문 정보 추가
+                const shareUrl = `${window.location.origin}${window.location.pathname}?test_id=${currentTestId}&days1=${userDaysMet}&time1=${surpriseTimeTaken}`;
                 shareLinkInput.value = shareUrl;
             } else if (participantType === 'partner2' && linkedTestId) {
                 // 공유받은 사용자: 바로 두 사람 결과 비교 화면 표시
@@ -199,15 +266,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 // '나의 결과'는 partner2, '애인의 결과'는 partner1
                 myScoreCombined.textContent = partner2Result.score;
                 mySummaryCombined.textContent = partner2Result.resultSummary;
+                myDaysCombinedDisplay.textContent = partner2Result.daysMet !== null ? partner2Result.daysMet : '입력 안함'; // partner2의 사귄 날짜
+                myTimeDaysCombinedDisplay.textContent = partner2Result.timeTakenDays !== null ? partner2Result.timeTakenDays : 'N/A'; // partner2의 입력 시간
+
                 partnerScoreCombined.textContent = partner1Result.score;
                 partnerSummaryCombined.textContent = partner1Result.resultSummary;
+                // partner1의 정보는 URL 파라미터에서 가져온 값을 우선 사용하거나, 서버 응답을 사용
+                partnerDaysCombinedDisplay.textContent = partnerDaysMet !== null ? partnerDaysMet : (partner1Result.daysMet !== null ? partner1Result.daysMet : '입력 안함');
+                partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays !== null ? partnerTimeTakenDays : (partner1Result.timeTakenDays !== null ? partner1Result.timeTakenDays : 'N/A');
                 
                 resultScreen.classList.add('hidden'); 
                 combinedResultScreen.classList.remove('hidden');
 
             } else {
-                // 한쪽 결과가 없는 경우 (예: partner1 결과는 있지만 partner2 결과가 아직 없는 경우 - 이 시나리오에서는 거의 발생 안함)
-                // 또는 partner1 결과가 없는 경우 (서버 오류 또는 잘못된 originalTestId)
+                // 한쪽 결과가 없는 경우
                 throw new Error('두 참여자의 결과를 모두 가져오지 못했습니다.');
             }
 
@@ -216,8 +288,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // 비교 결과 화면에 오류 메시지 표시
             myScoreCombined.textContent = "오류";
             mySummaryCombined.textContent = ""; // Clear previous summary
+            myDaysCombinedDisplay.textContent = "N/A";
+            myTimeDaysCombinedDisplay.textContent = "N/A";
+
             partnerScoreCombined.textContent = "오류";
             partnerSummaryCombined.textContent = `결과 비교 중 오류: ${error.message}`;
+            partnerDaysCombinedDisplay.textContent = "N/A";
+            partnerTimeDaysCombinedDisplay.textContent = "N/A";
             
             resultScreen.classList.add('hidden'); // 개인 결과 화면 숨김
             combinedResultScreen.classList.remove('hidden'); // 비교 결과 화면(오류 메시지 포함) 표시
@@ -242,18 +319,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     restartButton.addEventListener('click', () => {
         // Reset state and go to start screen
-        currentTestId = null;
-        linkedTestId = null;
-        // participantTypeSelect.disabled = false; // 제거됨
-        // participantTypeSelect.value = 'partner1'; // 제거됨
-        participantType = 'partner1'; // 재시작 시 기본값으로 초기화
-        window.history.pushState({}, document.title, window.location.pathname); // Clear query params
-
-        combinedResultScreen.classList.add('hidden');
-        resultScreen.classList.add('hidden');
-        testScreen.classList.add('hidden');
         startScreen.classList.remove('hidden');
+        testScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        combinedResultScreen.classList.add('hidden');
+        surpriseQuestionScreen.classList.add('hidden'); // Ensure surprise screen is hidden
+
+        window.history.pushState({}, document.title, window.location.pathname); // Clear query params
         
+        // Reset participant type and test IDs
+        participantType = 'partner1'; // 재시작 시 기본값으로 초기화
+        // participantTypeSelect.value = 'partner1'; // 제거됨
+        // participantTypeSelect.disabled = false; // 제거됨
+        linkedTestId = null;
+        currentTestId = null;
+        
+        // Reset test state variables
+        userScore = 0;
+        userAnswers = [];
+        currentQuestionIndex = 0;
+        userDaysMet = null;
+        surpriseTimeTaken = 0;
+        daysInputField.value = ''; // Clear days input field
+
         shareSection.classList.add('hidden');
         partnerResultPrompt.classList.add('hidden');
     });
