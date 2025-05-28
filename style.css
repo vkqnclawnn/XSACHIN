@@ -169,14 +169,8 @@ input[type="text"], select {
 }
 
 #copy-link-button {
-    /* padding: 10px 15px; */ /* .button 클래스에서 패딩 처리 */
-    /* margin-left: 10px; */ /* .button 클래스의 auto 마진으로 중앙 정렬되므로, 특정 상황 아니면 불필요 */
-    margin-top: 5px; /* 링크 입력창과의 간격을 줄이기 위해 위쪽 마진 조정 (기존 .button의 20px 대신) */
-    /* margin-bottom: 20px; */ /* .button 클래스의 기본값 사용 또는 필요시 조정 */
-    /* margin-left: auto; */ /* .button 클래스의 기본값 사용 */
-    /* margin-right: auto; */ /* .button 클래스의 기본값 사용 */
-    /* display: flex; 는 .button 클래스에 이미 있음 */
-    /* width: fit-content; 는 .button 클래스에 이미 있음 */
+    margin-top: 5px;
+    margin-bottom: 40px;
 }
 
 #partner-result-prompt p {
