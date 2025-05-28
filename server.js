@@ -128,23 +128,56 @@ app.get('/api/test/:testId', async (req, res) => {
 app.get('/api/test/pair/:originalTestId', async (req, res) => {
     try {
         const { originalTestId } = req.params;
+        const partner1TestDoc = await TestResult.findById(originalTestId);
 
-        const partner1Test = await TestResult.findOne({ testId: originalTestId, isSharedLinkOrigin: true });
-        if (!partner1Test) {
-            return res.status(404).json({ message: 'Original partner\'s test result not found.' });
+        if (!partner1TestDoc) {
+            return res.status(404).json({ message: 'Original test result not found.' });
         }
 
-        const partner2Test = await TestResult.findOne({ linkedTestId: originalTestId });
-        // partner2Test might be null if the second partner hasn't taken the test yet
+        const partner2TestDoc = await TestResult.findOne({
+            linkedTestId: originalTestId,
+            participantType: 'partner2'
+        });
 
-        res.json({
-            partner1Test,
-            partner2Test // This will be null if partner2 hasn't completed the test via the link
+        // 응답 객체 구성 시 daysMet와 timeTakenDays를 명시적으로 포함
+        const partner1Response = {
+            score: partner1TestDoc.score,
+            resultSummary: partner1TestDoc.resultSummary,
+            participantType: partner1TestDoc.participantType, // 필요하다면 추가
+            // ... 기타 partner1TestDoc에서 필요한 필드들 ...
+            daysMet: partner1TestDoc.daysMet, // <--- 이 필드를 포함해야 합니다.
+            timeTakenDays: partner1TestDoc.timeTakenDays // <--- 이 필드를 포함해야 합니다.
+        };
+
+        let partner2Response = null;
+        if (partner2TestDoc) {
+            partner2Response = {
+                score: partner2TestDoc.score,
+                resultSummary: partner2TestDoc.resultSummary,
+                participantType: partner2TestDoc.participantType, // 필요하다면 추가
+                // ... 기타 partner2TestDoc에서 필요한 필드들 ...
+                daysMet: partner2TestDoc.daysMet, // <--- 이 필드를 포함해야 합니다.
+                timeTakenDays: partner2TestDoc.timeTakenDays // <--- 이 필드를 포함해야 합니다.
+            };
+        }
+
+        if (!partner2Response) {
+            // 파트너2가 아직 테스트를 완료하지 않은 경우의 처리
+            return res.status(200).json({
+                message: 'Partner 2 has not completed the test yet.',
+                partner1Test: partner1Response,
+                partner2Test: null
+            });
+        }
+
+        res.status(200).json({
+            partner1Test: partner1Response,
+            partner2Test: partner2Response
         });
 
     } catch (error) {
-        console.error('Error fetching paired test results:', error);
-        res.status(500).json({ message: 'Server error while fetching paired results' });
+        console.error('Error fetching paired results:', error);
+        res.status(500).json({ message: 'Server error while fetching paired results', error: error.message });
     }
 });
 
