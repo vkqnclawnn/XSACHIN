@@ -214,3 +214,115 @@ input[type="text"], select {
   background-size: 320%;
   background-position: right center;
 }
+
+/* 추가된 결과 화면 스타일 */
+
+/* 결과 화면의 주 제목 (예: "테스트 결과", "두 사람의 결과 비교") */
+#result-screen h2, 
+#comparison-result-screen h2 {
+    color: #333; /* 기본 제목 색상 */
+    margin-bottom: 30px; /* 제목 아래 여백 */
+    font-size: 2em; /* 제목 폰트 크기 */
+    font-weight: 600; /* 제목 폰트 두께 */
+    border-bottom: 1px solid #eee; /* 부드러운 하단 구분선 */
+    padding-bottom: 15px; /* 구분선과의 여백 */
+}
+
+/* 개별 결과 블록 컨테이너 (예: "나의 결과", "애인의 결과"를 감싸는 div) */
+.result-details {
+    margin-bottom: 25px; /* 각 결과 블록 사이의 여백 */
+    padding-bottom: 15px; /* 블록 내부 하단 여백 */
+    border-bottom: 1px solid #f0f0f0; /* 각 결과 블록을 구분하는 연한 선 */
+}
+
+/* 비교 화면에서 마지막 결과 블록은 하단 구분선 제거 */
+#comparison-result-screen .result-details:last-of-type {
+    border-bottom: none;
+    margin-bottom: 20px; /* 버튼과의 간격을 위해 여백 조정 */
+}
+
+/* 개별 결과 블록의 소제목 (예: "나의 결과", "애인의 결과") */
+.result-details h3 {
+    color: #880088; /* 헤더 그라데이션과 유사한 포인트 색상 */
+    font-size: 1.6em; /* 소제목 폰트 크기 */
+    margin-top: 0; /* 이미 .result-details 에 여백이 있으므로 */
+    margin-bottom: 15px; /* 소제목과 내용 사이 여백 */
+}
+
+/* 결과 항목 텍스트 (점수, 요약, 날짜 등) 공통 스타일 */
+#result-screen p, 
+.result-details p {
+    font-size: 1.1em; /* 기본 텍스트 크기 */
+    color: #555; /* 가독성 좋은 회색톤 */
+    margin-bottom: 10px; /* 항목 간 여백 */
+    line-height: 1.7; /* 줄 간격 */
+}
+
+/* 점수가 포함된 라인 - HTML에서 <p class="result-score">점수: <strong>15</strong></p> 와 같이 사용 가정 */
+.result-line.result-score {
+    font-size: 1.2em !important; /* 다른 p 태그보다 약간 크게 */
+    color: #333 !important; /* 기본 텍스트 색상 */
+}
+.result-line.result-score strong { /* 점수 값 자체를 강조 */
+    font-weight: bold;
+    font-size: 1.5em; /* 점수 숫자 강조 */
+    color: #c04242; /* 기존 #answer-options button 색상과 유사한 강조색 */
+}
+
+/* 요약이 포함된 라인 - HTML에서 <p class="result-summary">요약: <em>내용...</em></p> 와 같이 사용 가정 */
+.result-line.result-summary {
+    color: #444 !important; /* 요약 텍스트는 살짝 진하게 */
+}
+.result-line.result-summary em {
+    font-style: italic; /* 요약 내용 이탤릭체 */
+}
+
+/* 공유 섹션 제목 (예: "↓↓애인에게 공유하기↓↓") - HTML에서 <h3 class="share-title">...</h3> 와 같이 사용 가정 */
+#result-screen h3.share-title {
+    font-size: 1.4em;
+    color: #333;
+    margin-top: 35px; /* 위쪽 여백 */
+    margin-bottom: 10px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* 공유 링크 설명 텍스트 (예: "링크를 복사해서 애인에게 보내보세요!") */
+#result-screen p.share-description {
+    font-size: 1em;
+    color: #666;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* 공유 링크 입력 필드 */
+#result-screen #share-link {
+    font-size: 1em;
+    background-color: #fff; /* 흰색 배경 */
+    border: 1px solid #ccc; /* 연한 테두리 */
+    box-shadow: none; /* 그림자 제거 */
+    margin-bottom: 10px; /* 버튼과의 간격 */
+    text-align: center; /* 링크 텍스트 가운데 정렬 */
+}
+
+/* "★ 애인이 테스트를 완료하면..." 안내 문구 - HTML에서 <p class="share-info-text">...</span> 와 같이 사용 가정 */
+#result-screen p.share-info-text {
+    margin-top: 25px; /* 위쪽 여백 */
+    font-size: 1em;
+    color: #777; /* 부드러운 회색 */
+    text-align: center;
+    padding: 12px 15px;
+    background-color: #f9f9f9; /* 아주 연한 배경으로 살짝 구분 */
+    border-radius: 4px; /* 모서리 살짝 둥글게 */
+}
+
+/* 결과 화면의 버튼들 상단 여백 조정 */
+#result-screen .button, 
+#comparison-result-screen .button {
+    margin-top: 25px; /* 버튼 위 여백 */
+}
+
+/* 링크 복사 버튼은 #copy-link-button ID를 가질 경우, 기존 스타일에서 margin-bottom 조정 가능 */
+#copy-link-button {
+    margin-bottom: 25px; /* 하단 추가 안내 문구와의 간격 */
+}
