@@ -243,7 +243,7 @@ input[type="text"], select {
 
 /* 개별 결과 블록의 소제목 (예: "나의 결과", "애인의 결과") */
 .result-details h3 {
-    color: #880088; /* 헤더 그라데이션과 유사한 포인트 색상 */
+    color: #000000; /* 헤더 그라데이션과 유사한 포인트 색상 */
     font-size: 1.6em; /* 소제목 폰트 크기 */
     margin-top: 0; /* 이미 .result-details 에 여백이 있으므로 */
     margin-bottom: 15px; /* 소제목과 내용 사이 여백 */
