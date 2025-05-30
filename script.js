@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             options: [
                 { text: "전혀 신경 안 쓴다", score: 4 },
                 { text: "그럴 수 있다고 생각한다", score: 3 },
-                { text: "우리 둘만 아는 애칭이 아니라면 괜찮다", score: 2 },
+                { text: "둘만 아는 애칭이 아니라면 괜찮다", score: 2 },
                 { text: "좀 거슬린다", score: 1 },
                 { text: "절대 안 된다", score: 0 }
             ]
