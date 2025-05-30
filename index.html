@@ -50,37 +50,38 @@
 
             <section id="result-screen" class="hidden">
                 <h2>테스트 결과</h2>
-                <div id="individual-result">
-                    <p>당신의 점수: <span id="score"></span>점</p>
-                    <p>결과: <span id="result-summary"></span></p>
+                <div id="individual-result" class="result-details">
+                    <p class="result-line result-score">당신의 점수: <strong><span id="score"></span></strong>점</p>
+                    <p class="result-line result-summary">결과: <em><span id="result-summary"></span></em></p>
                 </div>
                 <div id="share-section" class="hidden">
-                    <h3>↓ ↓애인에게 결과 공유하기↓ ↓</h3>
-                    <p>링크를 복사해서 애인에게 보내세요!</p>
-                    <input type="text" id="share-link" readonly> <!-- 이 값은 script.js에 의해 백엔드에서 받은 동적 URL로 채워질 수 있습니다. -->
+                    <h3 class="share-title">↓ ↓애인에게 결과 공유하기↓ ↓</h3>
+                    <p class="share-description">링크를 복사해서 애인에게 보내세요!</p>
+                    <input type="text" id="share-link" readonly>
                     <button id="copy-link-button" class="button">링크 복사</button>
                 </div>
                 <div id="partner-result-prompt" class="hidden">
-                    <p>★ 애인이 테스트를 완료하면<br>두 사람의 결과를 함께 볼 수 있습니다. ★</p>
+                    <p class="share-info-text">★ 애인이 테스트를 완료하면<br>두 사람의 결과를 함께 볼 수 있습니다. ★</p>
                 </div>
+                <button id="restart-button-individual" class="button hidden">다시 테스트하기</button>
             </section>
 
             <section id="combined-result-screen" class="hidden">
                 <h2>두 사람의 결과 비교</h2>
                 <div class="result-comparison">
-                    <div id="my-result-combined">
+                    <div id="my-result-combined" class="result-details">
                         <h3>나의 결과</h3>
-                        <p>점수: <span id="my-score-combined"></span></p>
-                        <p>요약: <span id="my-summary-combined"></span></p>
-                        <p>입력한 사귄 날짜: <span id="my-days-combined"></span>일</p>
-                        <p>날짜 입력까지 걸린 시간: <span id="my-time-days-combined"></span>초</p>
+                        <p class="result-line result-score">점수: <strong><span id="my-score-combined"></span></strong></p>
+                        <p class="result-line result-summary">요약: <em><span id="my-summary-combined"></span></em></p>
+                        <p class="result-line">입력한 사귄 날짜: <span id="my-days-combined"></span>일</p>
+                        <p class="result-line">날짜 입력까지 걸린 시간: <span id="my-time-days-combined"></span>초</p>
                     </div>
-                    <div id="partner-result-combined">
+                    <div id="partner-result-combined" class="result-details">
                         <h3>애인의 결과</h3>
-                        <p>점수: <span id="partner-score-combined"></span></p>
-                        <p>요약: <span id="partner-summary-combined"></span></p>
-                        <p>입력한 사귄 날짜: <span id="partner-days-combined"></span>일</p>
-                        <p>날짜 입력까지 걸린 시간: <span id="partner-time-days-combined"></span>초</p>
+                        <p class="result-line result-score">점수: <strong><span id="partner-score-combined"></span></strong></p>
+                        <p class="result-line result-summary">요약: <em><span id="partner-summary-combined"></span></em></p>
+                        <p class="result-line">입력한 사귄 날짜: <span id="partner-days-combined"></span>일</p>
+                        <p class="result-line">날짜 입력까지 걸린 시간: <span id="partner-time-days-combined"></span>초</p>
                     </div>
                 </div>
                 <button id="restart-button" class="button">다시 테스트하기</button>

@@ -219,7 +219,7 @@ input[type="text"], select {
 
 /* 결과 화면의 주 제목 (예: "테스트 결과", "두 사람의 결과 비교") */
 #result-screen h2, 
-#comparison-result-screen h2 {
+#combined-result-screen h2 { /* ID 수정 및 #comparison-result-screen 제거 또는 병기 */
     color: #333; /* 기본 제목 색상 */
     margin-bottom: 30px; /* 제목 아래 여백 */
     font-size: 2em; /* 제목 폰트 크기 */
