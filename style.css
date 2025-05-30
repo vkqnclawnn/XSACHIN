@@ -272,9 +272,15 @@ input[type="text"], select {
 /* 요약이 포함된 라인 - HTML에서 <p class="result-summary">요약: <em>내용...</em></p> 와 같이 사용 가정 */
 .result-line.result-summary {
     color: #444 !important; /* 요약 텍스트는 살짝 진하게 */
+    text-align: left; /* 긴 텍스트를 위해 왼쪽 정렬 */
+    margin-top: 15px; /* 점수와의 간격 확보 */
 }
 .result-line.result-summary em {
-    font-style: italic; /* 요약 내용 이탤릭체 */
+    /* font-style: italic; */ /* 긴 설명에서는 이탤릭체를 제거하거나 유지할 수 있습니다. 여기서는 일단 주석 처리. */
+    font-style: normal; /* 이탤릭체 제거 */
+    white-space: pre-wrap; /* JavaScript에서 \n으로 넣은 줄바꿈을 인식하도록 설정 */
+    display: block; /* em 태그가 블록처럼 전체 너비를 차지하도록 하여 pre-wrap이 잘 적용되게 함 */
+    line-height: 1.8; /* 줄 간격을 살짝 넓혀 가독성 향상 */
 }
 
 /* 공유 섹션 제목 (예: "↓↓애인에게 공유하기↓↓") - HTML에서 <h3 class="share-title">...</h3> 와 같이 사용 가정 */
