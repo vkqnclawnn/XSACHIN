@@ -60,106 +60,107 @@ document.addEventListener('DOMContentLoaded', () => {
     let partnerTimeTakenDays = null;
 
     // Updated questions array with 10 questions, scores set (low score = cool, high score = jealous)
+    // Options are now sorted by score in descending order
     const questions = [
         { // 1. 가장 일반적인 소통
             text: "애인이 X사친과 밤늦게까지 디엠으로 대화하는 것은 괜찮다.",
             options: [
-                { text: "전혀 상관없다", score: 0 },
-                { text: "가끔은 괜찮다", score: 2 },
-                { text: "자주는 좀 그렇다", score: 5 },
+                { text: "절대 안 된다", score: 10 },
                 { text: "왠만하면 안 했으면 좋겠다", score: 8 },
-                { text: "절대 안 된다", score: 10 }
-            ]
+                { text: "자주는 좀 그렇다", score: 5 },
+                { text: "가끔은 괜찮다", score: 2 },
+                { text: "전혀 상관없다", score: 0 }
+            ].sort((a, b) => b.score - a.score) // Sort by score descending
         },
         { // 2. 고민 상담
             text: "애인이 X사친과 만나서 고민을 들어주며 위로해주는 것은 괜찮다.",
             options: [
-                { text: "얼마든지 괜찮다", score: 0 },
-                { text: "필요하다면 그럴 수 있다", score: 2 },
-                { text: "가끔은 괜찮지만, 나한테 먼저 말했으면 좋겠다", score: 5 },
+                { text: "절대 안 된다", score: 10 },
                 { text: "친족의 별세 외에는 안 된다", score: 8 },
-                { text: "절대 안 된다", score: 10 }
-            ]
+                { text: "가끔은 괜찮지만, 나한테 먼저 말했으면 좋겠다", score: 5 },
+                { text: "필요하다면 그럴 수 있다", score: 2 },
+                { text: "얼마든지 괜찮다", score: 0 }
+            ].sort((a, b) => b.score - a.score) // Sort by score descending
         },
         { // 3. 별명 사용
             text: "애인이 X사친과 둘만 아는 별명으로 친근하게 부를 수 있다.",
             options: [
-                { text: "전혀 신경 안 쓴다", score: 0 },
-                { text: "그럴 수 있다고 생각한다", score: 2 },
-                { text: "둘만 아는 애칭이 아니라면 괜찮다", score: 5 },
+                { text: "절대 안 된다", score: 10 },
                 { text: "좀 거슬린다", score: 8 },
-                { text: "절대 안 된다", score: 10 }
-            ]
+                { text: "둘만 아는 애칭이 아니라면 괜찮다", score: 5 },
+                { text: "그럴 수 있다고 생각한다", score: 2 },
+                { text: "전혀 신경 안 쓴다", score: 0 }
+            ].sort((a, b) => b.score - a.score) // Sort by score descending
         },
         { // 4. 선물 교환
             text: "애인이 X사친과 생일이나 기념일 선물을 챙겨줄 수 있다.",
             options: [
-                { text: "얼마든지 괜찮다", score: 0 },
-                { text: "가벼운 선물 정도는 괜찮다", score: 2 },
-                { text: "상황 봐서 괜찮을 수도 있다", score: 5 },
+                { text: "절대 안 된다", score: 10 },
                 { text: "왠만하면 안 했으면 좋겠다", score: 8 },
-                { text: "절대 안 된다", score: 10 }
-            ]
+                { text: "상황 봐서 괜찮을 수도 있다", score: 5 },
+                { text: "가벼운 선물 정도는 괜찮다", score: 2 },
+                { text: "얼마든지 괜찮다", score: 0 }
+            ].sort((a, b) => b.score - a.score) // Sort by score descending
         },
         { // 5. 가벼운 신체 접촉
             text: "애인이 X사친과 가벼운 신체 접촉(하이파이브, 어깨동무 등)을 하는 것은 괜찮다.",
             options: [
-                { text: "전혀 신경 안 쓴다", score: 0 },
-                { text: "하이파이브 정도는 괜찮다", score: 2 },
-                { text: "상황에 따라 다를 것 같다", score: 5 },
+                { text: "절대 안 된다", score: 10 },
                 { text: "좀 불편하다", score: 8 },
-                { text: "절대 안 된다", score: 10 }
-            ]
+                { text: "상황에 따라 다를 것 같다", score: 5 },
+                { text: "하이파이브 정도는 괜찮다", score: 2 },
+                { text: "전혀 신경 안 쓴다", score: 0 }
+            ].sort((a, b) => b.score - a.score) // Sort by score descending
         },
         { // 6. 단둘이 식사
             text: "애인이 X사친과 단둘이 저녁 술자리를 하는 것은 괜찮다.",
             options: [
-                { text: "매우 괜찮다", score: 0 },
-                { text: "가끔은 괜찮다", score: 2 },
-                { text: "점심 정도면 괜찮다", score: 5 },
+                { text: "절대 안 된다", score: 10 },
                 { text: "왠만하면 안 했으면 좋겠다", score: 8 },
-                { text: "절대 안 된다", score: 10 }
-            ]
+                { text: "점심 정도면 괜찮다", score: 5 },
+                { text: "가끔은 괜찮다", score: 2 },
+                { text: "매우 괜찮다", score: 0 }
+            ].sort((a, b) => b.score - a.score) // Sort by score descending
         },
         { // 7. 단둘이 영화
             text: "애인이 X사친과 단둘이 영화를 보러 가는 것은 괜찮다.",
             options: [
-                { text: "매우 괜찮다", score: 0 },
-                { text: "그럴 수 있다", score: 2 },
-                { text: "썩 내키지는 않는다", score: 5 },
+                { text: "절대 안 된다", score: 10 },
                 { text: "왠만하면 안 갔으면 좋겠다", score: 8 },
-                { text: "절대 안 된다", score: 10 }
-            ]
+                { text: "썩 내키지는 않는다", score: 5 },
+                { text: "그럴 수 있다", score: 2 },
+                { text: "매우 괜찮다", score: 0 }
+            ].sort((a, b) => b.score - a.score) // Sort by score descending
         },
         { // 8. 커플룩 의심
             text: "애인이 X사친과 커플룩처럼 보이는 옷(예: 같은 브랜드, 같은 색상)을 맞춰 입고 단체 모임에 참석 할 수 있다.",
             options: [
-                { text: "전혀 신경 안 쓴다, 우연일 수도 있다", score: 0 },
-                { text: "신경은 쓰이지만 그럴 수도 있다", score: 2 },
-                { text: "썩 기분 좋지는 않다", score: 5 },
+                { text: "상상도 하기 싫다", score: 10 },
                 { text: "절대 안 된다고 생각한다", score: 8 },
-                { text: "상상도 하기 싫다", score: 10 }
-            ]
+                { text: "썩 기분 좋지는 않다", score: 5 },
+                { text: "신경은 쓰이지만 그럴 수도 있다", score: 2 },
+                { text: "전혀 신경 안 쓴다, 우연일 수도 있다", score: 0 }
+            ].sort((a, b) => b.score - a.score) // Sort by score descending
         },
         { // 9. 휴대폰 배경화면
             text: "애인이 X사친과 함께 찍은 셀카를 자신의 휴대폰 배경화면으로 설정할 수 있다.",
             options: [
-                { text: "전혀 상관없다", score: 0 },
-                { text: "단체 사진이면 괜찮다", score: 2 },
-                { text: "단둘이 찍은 거라면 좀 그렇다", score: 5 },
+                { text: "이건 선 넘었다", score: 10 },
                 { text: "절대 안 된다", score: 8 },
-                { text: "이건 선 넘었다", score: 10 }
-            ]
+                { text: "단둘이 찍은 거라면 좀 그렇다", score: 5 },
+                { text: "단체 사진이면 괜찮다", score: 2 },
+                { text: "전혀 상관없다", score: 0 }
+            ].sort((a, b) => b.score - a.score) // Sort by score descending
         },
         { // 10. 데이트 약속 변경
             text: "애인이 X사친과의 약속 때문에 당신과의 데이트를 빠질 수 있다.",
             options: [
-                { text: "정말 중요한 일이면 그럴 수 있다", score: 0 },
-                { text: "가끔은 그럴 수 있다", score: 2 },
-                { text: "이해는 하지만 기분 나쁘다", score: 5 },
+                { text: "있을 수 없는 일이다", score: 10 },
                 { text: "절대 안 된다", score: 8 },
-                { text: "있을 수 없는 일이다", score: 10 }
-            ]
+                { text: "이해는 하지만 기분 나쁘다", score: 5 },
+                { text: "가끔은 그럴 수 있다", score: 2 },
+                { text: "정말 중요한 일이면 그럴 수 있다", score: 0 }
+            ].sort((a, b) => b.score - a.score) // Sort by score descending
         }
     ];
 
