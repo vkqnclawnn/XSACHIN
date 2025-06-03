@@ -331,6 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // resultScreen.classList.add('hidden'); // 개인 결과 화면 표시 로직을 조건부로 변경
         // scoreDisplay.textContent = userScore; // 아래 조건문 내부로 이동
         // resultSummaryDisplay.textContent = resultSummary; // 아래 조건문 내부로 이동
+        testScreen.classList.add('hidden'); // 테스트 화면 숨기기
 
         const resultSummary = getResultSummary(userScore);
 
@@ -355,6 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             currentTestId = data.testId; // The ID of the test just taken
+            // testScreen.classList.add('hidden'); // 위치 이동: try 블록 시작 부분으로
 
             if (participantType === 'partner1' && data.isSharedLinkOrigin) {
                 // 첫 번째 사용자: 개인 결과 화면 및 공유 링크 표시
@@ -386,6 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error finishing test:', error);
+            testScreen.classList.add('hidden'); // 오류 발생 시에도 테스트 화면 숨기기
             // 오류 발생 시 개인 결과 화면에 오류 메시지 표시 (combinedResultScreen이 활성화되지 않은 경우)
             if (combinedResultScreen.classList.contains('hidden')) {
                 scoreDisplay.textContent = "오류";
@@ -404,6 +407,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const longWaitMessageText = document.getElementById('longWaitMessageText');
         const viewDetailedAnswersButton = document.getElementById('viewDetailedAnswersButton'); // 버튼 ID 가져오기
         let longLoadTimerId = null;
+
+        testScreen.classList.add('hidden'); // 테스트 화면 숨기기
 
         // 로딩 메시지 표시 (초기 - 일반 메시지)
         if (loadingMessageContainer && genericLoadingText && longWaitMessageText) {
@@ -515,6 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             resultScreen.classList.add('hidden'); 
             combinedResultScreen.classList.remove('hidden'); 
+            testScreen.classList.add('hidden'); // 여기에도 추가 (혹시 모를 경우 대비)
         } finally {
             // 로딩 메시지 숨김
             if (loadingMessageContainer) {
@@ -592,6 +598,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function renderDetailedAnswersView(testId, container) {
         container.innerHTML = '<p>두 분의 상세 답변을 불러오는 중입니다...</p>';
+        // testScreen을 명시적으로 숨김 (이 뷰에서는 사용하지 않음)
+        if (testScreen) {
+            testScreen.classList.add('hidden');
+        }
+        if (prevQuestionButton) {
+            prevQuestionButton.classList.add('hidden');
+        }
+
         try {
             const response = await fetch(`${API_BASE_URL}/test/pair/${testId}/answers`);
             const data = await response.json();
@@ -604,7 +618,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const partner2Result = data.partner2Test;
 
             if (!partner1Result || !partner2Result || !partner1Result.answers || !partner2Result.answers) {
-                // 데이터가 불완전할 경우 사용자에게 알림
                 let errorMessage = '상세 답변 정보가 완전하지 않습니다.';
                 if (!partner1Result || !partner1Result.answers) errorMessage += ' (애인 정보 부족)';
                 if (!partner2Result || !partner2Result.answers) errorMessage += ' (내 정보 부족)';
@@ -619,43 +632,78 @@ document.addEventListener('DOMContentLoaded', () => {
             if (p1Days !== null && p1Days !== undefined && p1Days !== '') backToCombinedLinkHref += `&days1=${p1Days}`;
             if (p1Time !== null && p1Time !== undefined && p1Time !== '') backToCombinedLinkHref += `&time1=${p1Time}`;
 
-
-            let comparisonHtml = `<h2>질문별 선택 답변 상세 비교</h2>
-                                  <p><a href="${backToCombinedLinkHref}">종합 결과로 돌아가기</a></p><hr>`;
+            let detailedViewHtml = `<h2>질문별 선택 답변 상세 비교</h2>
+                                  <p><a href="${backToCombinedLinkHref}" class="button-link">종합 결과로 돌아가기</a></p><hr style="margin-bottom: 20px;">`;
             
             questions.forEach((question, index) => {
                 const p1AnswerObj = partner1Result.answers.find(ans => ans.questionIndex === index);
                 const p2AnswerObj = partner2Result.answers.find(ans => ans.questionIndex === index);
 
-                const p1AnswerText = p1AnswerObj ? p1AnswerObj.selectedOptionText : "답변 없음 (이전 버전 데이터일 수 있습니다)";
-                const p2AnswerText = p2AnswerObj ? p2AnswerObj.selectedOptionText : "답변 없음 (이전 버전 데이터일 수 있습니다)";
+                const p1SelectedText = p1AnswerObj ? p1AnswerObj.selectedOptionText : null;
+                const p2SelectedText = p2AnswerObj ? p2AnswerObj.selectedOptionText : null;
 
-                comparisonHtml += `
-                    <div class="answer-comparison-item" style="margin-bottom: 20px; padding: 10px; border: 1px solid #eee; border-radius: 5px;">
-                        <h4 style="margin-top:0;">질문 ${index + 1}: ${question.text}</h4>
-                        <p><strong>애인(링크 생성자)의 선택:</strong> ${p1AnswerText}</p>
-                        <p><strong>나(링크 참여자)의 선택:</strong> ${p2AnswerText}</p>
-                    </div>
-                `;
+                detailedViewHtml += `
+                    <div class="question-comparison-block" style="margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+                        <h3 style="font-size: 1.1em; color: #333; margin-top:0;">질문 ${index + 1}/${questions.length}: ${question.text}</h3>
+                        <div class="answer-options-comparison" style="display: flex; flex-direction: column; gap: 10px;">`;
+
+                question.options.forEach(option => {
+                    let buttonStyle = 'background-color: #fff; color: #333; border: 1px solid #ccc;';
+                    let selectedByLabels = [];
+
+                    if (option.text === p1SelectedText) {
+                        buttonStyle = 'background-color: #e0f0ff; color: #0056b3; border: 1px solid #0056b3; font-weight: bold;'; // 연한 파란색 계열 (애인)
+                        selectedByLabels.push('애인 선택');
+                    }
+                    if (option.text === p2SelectedText) {
+                        // 만약 P1도 같은 것을 선택했다면, 스타일을 덮어쓰거나 병합할 수 있음. 여기서는 P2 스타일 우선 또는 다른 색상.
+                        // P1과 P2가 같은 답변을 선택한 경우
+                        if (option.text === p1SelectedText) {
+                             buttonStyle = 'background-color: #d4f0d4; color: #186318; border: 1px solid #186318; font-weight: bold;'; // 연한 초록색 계열 (둘 다)
+                             selectedByLabels = ['애인 & 나의 선택']; // 라벨 변경
+                        } else {
+                             buttonStyle = 'background-color: #ffe0e0; color: #b30000; border: 1px solid #b30000; font-weight: bold;'; // 연한 빨간색/분홍색 계열 (나)
+                             selectedByLabels.push('나의 선택');
+                        }
+                    }
+                    
+                    detailedViewHtml += `<button class="comparison-option-button" disabled style="${buttonStyle} padding: 10px; text-align: left; border-radius: 5px; cursor: default;">
+                                            ${option.text} 
+                                            ${selectedByLabels.length > 0 ? ` <span style="font-size: 0.8em; opacity: 0.8;">(${selectedByLabels.join(', ')})</span>` : ''}
+                                         </button>`;
+                });
+
+                detailedViewHtml += `</div></div>`;
             });
             
-            container.innerHTML = comparisonHtml;
+            container.innerHTML = detailedViewHtml;
 
             const restartDetailedViewButton = document.createElement('button');
             restartDetailedViewButton.textContent = '테스트 다시하기';
             restartDetailedViewButton.className = 'button'; // 스타일 적용
             restartDetailedViewButton.style.marginTop = '20px';
+            restartDetailedViewButton.style.display = 'block'; // 버튼을 블록 요소로 만들어 가운데 정렬 용이
+            restartDetailedViewButton.style.marginLeft = 'auto';
+            restartDetailedViewButton.style.marginRight = 'auto';
             restartDetailedViewButton.onclick = () => {
-                // 전역 restartButton의 클릭 이벤트를 트리거하거나, 동일 로직 수행
                 document.getElementById('restart-button').click();
             };
             container.appendChild(restartDetailedViewButton);
 
+            // "종합 결과로 돌아가기" 링크에도 버튼 스타일 적용
+            const backLink = container.querySelector('a[href*="test_id"]');
+            if (backLink) {
+                backLink.classList.add('button');
+                backLink.style.textDecoration = 'none';
+                backLink.style.display = 'inline-block';
+                backLink.style.marginBottom = '10px';
+            }
+
 
         } catch (error) {
             console.error("Error rendering detailed answers view:", error);
-            container.innerHTML = `<p>상세 답변을 표시하는 중 오류가 발생했습니다: ${error.message}</p> 
-                                   <p><a href="${window.location.pathname}">테스트 처음으로 돌아가기</a></p>`;
+            container.innerHTML = `<p style="color: red;">상세 답변을 표시하는 중 오류가 발생했습니다: ${error.message}</p> 
+                                   <p><a href="${window.location.pathname}" class="button">테스트 처음으로 돌아가기</a></p>`;
         }
     }
 
