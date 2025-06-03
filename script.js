@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // const nextQuestionButton = document.getElementById('next-question-button'); // 이전 ID
     const prevQuestionButton = document.getElementById('prev-question-button'); // 새 ID로 변경 (HTML도 수정 필요)
     const copyLinkButton = document.getElementById('copy-link-button');
-    const restartButton = document.getElementById('restart-button');
     const submitDaysButton = document.getElementById('submit-days-button');
 
     // Display elements
@@ -555,47 +554,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('링크가 복사되었습니다!');
     });
 
-    restartButton.addEventListener('click', () => {
-        // Reset state and go to start screen
-        startScreen.classList.remove('hidden');
-        testScreen.classList.add('hidden');
-        resultScreen.classList.add('hidden');
-        combinedResultScreen.classList.add('hidden');
-        surpriseQuestionScreen.classList.add('hidden');
-        prevQuestionButton.classList.add('hidden');
-        if (detailedAnswersPageContainer) { // 상세 답변 페이지 숨기기 및 내용 초기화
-            detailedAnswersPageContainer.classList.add('hidden');
-            detailedAnswersPageContainer.innerHTML = '';
-        }
-
-        window.history.pushState({}, document.title, window.location.pathname); // Clear query params
-        
-        // Reset participant type and test IDs
-        participantType = 'partner1'; // 재시작 시 기본값으로 초기화
-        // participantTypeSelect.value = 'partner1'; // 제거됨
-        // participantTypeSelect.disabled = false; // 제거됨
-        linkedTestId = null;
-        currentTestId = null;
-        
-        // Reset test state variables
-        userScore = 0;
-        userAnswers = [];
-        currentQuestionIndex = 0;
-        userDaysMet = null;
-        surpriseTimeTaken = 0;
-        daysInputField.value = ''; // Clear days input field
-
-        shareSection.classList.add('hidden');
-        partnerResultPrompt.classList.add('hidden');
-        
-        // 상세 답변 페이지가 있다면 숨김 (위에서 이미 처리했지만, 중복 확인)
-        // const detailedAnswersPageContainer = document.getElementById('detailedAnswersPage');
-        // if (detailedAnswersPageContainer) {
-        //     detailedAnswersPageContainer.classList.add('hidden');
-        //     detailedAnswersPageContainer.innerHTML = ''; // 내용도 비움
-        // }
-    });
-
     async function renderDetailedAnswersView(testId, container) {
         container.innerHTML = '<p>두 분의 상세 답변을 불러오는 중입니다...</p>';
         // testScreen을 명시적으로 숨김 (이 뷰에서는 사용하지 않음)
@@ -628,7 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const p1Days = urlParams.get('days1') || (partner1Result ? partner1Result.daysMet : '');
             const p1Time = urlParams.get('time1') || (partner1Result ? partner1Result.timeTakenDays : '');
 
-            let detailedViewHtml = `<h2 style="text-align: center; color: #333; margin-bottom: 10px; font-size: 1.5em; font-weight: bold;">선택한 답변을 비교해보세요!</h2>
+            let detailedViewHtml = `<h2 style="text-align: center; color: #aa2016e0; margin-bottom: 10px; font-size: 1.3em; font-weight: bold;">선택한 답변을 비교해보세요!</h2>
                                   <hr style="margin-bottom: 20px; border: 0; border-top: 1px solid #eee;">`;
             
             questions.forEach((question, index) => {
@@ -673,18 +631,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             container.innerHTML = detailedViewHtml;
-
-            const restartDetailedViewButton = document.createElement('button');
-            restartDetailedViewButton.textContent = '테스트 다시하기';
-            restartDetailedViewButton.className = 'button'; // 스타일 적용
-            restartDetailedViewButton.style.marginTop = '20px';
-            restartDetailedViewButton.style.display = 'block'; // 버튼을 블록 요소로 만들어 가운데 정렬 용이
-            restartDetailedViewButton.style.marginLeft = 'auto';
-            restartDetailedViewButton.style.marginRight = 'auto';
-            restartDetailedViewButton.onclick = () => {
-                document.getElementById('restart-button').click();
-            };
-            container.appendChild(restartDetailedViewButton);
 
 
         } catch (error) {
