@@ -51,8 +51,13 @@ const testResultSchema = new mongoose.Schema({
     resultSummary: { type: String, required: true },
     isSharedLinkOrigin: { type: Boolean, default: false },
     linkedTestId: { type: String, default: null },
-    daysMet: { type: Number, default: null }, // <--- 이 필드가 있는지 확인!
-    timeTakenDays: { type: Number, default: null }, // <--- 이 필드가 있는지 확인!
+    daysMet: { type: Number, default: null },
+    timeTakenDays: { type: Number, default: null },
+    answers: [{ // 각 질문에 대한 상세 답변 저장
+        questionIndex: { type: Number, required: true },
+        selectedOptionText: { type: String, required: true },
+        score: { type: Number, required: true }
+    }],
     createdAt: { type: Date, default: Date.now },
 });
 
@@ -62,16 +67,17 @@ const TestResult = mongoose.model('TestResult', testResultSchema);
 // POST: Create a new test result
 app.post('/api/test', async (req, res) => {
     try {
-        // daysMet와 timeTakenDays를 req.body에서 추출
-        const { score, resultSummary, participantType, linkedTestId: clientLinkedTestId, daysMet, timeTakenDays } = req.body;
+        // daysMet, timeTakenDays, answers를 req.body에서 추출
+        const { score, resultSummary, participantType, linkedTestId: clientLinkedTestId, daysMet, timeTakenDays, answers } = req.body;
 
         if (typeof score !== 'number' || !resultSummary || !participantType) {
             return res.status(400).json({ message: 'Missing required fields: score, resultSummary, participantType' });
         }
-        // daysMet와 timeTakenDays에 대한 유효성 검사도 추가할 수 있습니다 (예: 숫자인지).
-        // if (typeof daysMet !== 'number' || typeof timeTakenDays !== 'number') {
-        //     return res.status(400).json({ message: 'daysMet and timeTakenDays must be numbers.' });
-        // }
+        // answers 필드 유효성 검사 (선택 사항)
+        if (!Array.isArray(answers)) {
+            // return res.status(400).json({ message: 'Field "answers" must be an array.' });
+            // 클라이언트에서 항상 answers를 보내므로, 이 검사는 일단 보류하거나 더 상세하게 할 수 있습니다.
+        }
         
         const newTestId = uuidv4();
         let isOrigin = false;
@@ -97,8 +103,9 @@ app.post('/api/test', async (req, res) => {
             resultSummary,
             isSharedLinkOrigin: isOrigin,
             linkedTestId: finalLinkedTestId,
-            daysMet: daysMet !== undefined ? daysMet : null, // <--- 저장 로직에 추가
-            timeTakenDays: timeTakenDays !== undefined ? timeTakenDays : null, // <--- 저장 로직에 추가
+            daysMet: daysMet !== undefined ? daysMet : null,
+            timeTakenDays: timeTakenDays !== undefined ? timeTakenDays : null,
+            answers: answers || [], // answers 저장
         });
 
         await newTestResult.save();
@@ -130,8 +137,8 @@ app.get('/api/test/:testId', async (req, res) => {
 app.get('/api/test/pair/:originalTestId', async (req, res) => {
     try {
         const { originalTestId } = req.params;
-        // TestResult.findById(originalTestId) 대신 findOne({ testId: ... }) 사용
-        const partner1TestDoc = await TestResult.findOne({ testId: originalTestId });
+        // partner1TestDoc를 찾을 때 isSharedLinkOrigin: true 조건 추가 (일관성)
+        const partner1TestDoc = await TestResult.findOne({ testId: originalTestId, isSharedLinkOrigin: true });
 
         if (!partner1TestDoc) {
             return res.status(404).json({ message: 'Original test result not found.' });
@@ -187,6 +194,43 @@ app.get('/api/test/pair/:originalTestId', async (req, res) => {
         // 오류 응답에 오류 객체의 name과 message를 포함시켜 더 자세한 정보 제공
         res.status(500).json({ 
             message: 'Server error while fetching paired results', 
+            errorName: error.name, 
+            errorMessage: error.message 
+        });
+    }
+});
+
+// GET: Get paired test results with detailed answers
+app.get('/api/test/pair/:originalTestId/answers', async (req, res) => {
+    try {
+        const { originalTestId } = req.params;
+        const partner1Test = await TestResult.findOne({ testId: originalTestId, isSharedLinkOrigin: true });
+
+        if (!partner1Test) {
+            return res.status(404).json({ message: 'Original test result (partner1) not found.' });
+        }
+
+        const partner2Test = await TestResult.findOne({
+            linkedTestId: originalTestId,
+            participantType: 'partner2'
+        });
+
+        if (!partner2Test) {
+            // 파트너2가 아직 테스트를 완료하지 않았거나, 해당 ID의 테스트가 없는 경우
+            // 상세 답변 비교는 두 참여자 모두의 결과가 필요하므로, 이 경우엔 partner2Test가 없으면 에러 처리 또는 부분 데이터 반환을 고려할 수 있음
+            // 현재 프론트엔드 로직상 이 API는 두 결과가 모두 있을 때 호출될 것으로 예상됨
+            return res.status(404).json({ message: 'Partner 2 test result not found for detailed answer comparison.' });
+        }
+        
+        res.status(200).json({
+            partner1Test: partner1Test.toObject(), // Mongoose 문서를 plain JavaScript 객체로 변환
+            partner2Test: partner2Test.toObject()
+        });
+
+    } catch (error) {
+        console.error('Error fetching detailed paired results with answers:', error);
+        res.status(500).json({ 
+            message: 'Server error while fetching detailed paired results with answers', 
             errorName: error.name, 
             errorMessage: error.message 
         });

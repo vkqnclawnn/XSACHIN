@@ -37,13 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const myTimeDaysCombinedDisplay = document.getElementById('my-time-days-combined');
     const partnerDaysCombinedDisplay = document.getElementById('partner-days-combined');
     const partnerTimeDaysCombinedDisplay = document.getElementById('partner-time-days-combined');
+    const detailedAnswersPageContainer = document.getElementById('detailedAnswersPage'); // 상세 답변 페이지 컨테이너
 
     // const participantTypeSelect = document.getElementById('participant-type'); // 제거됨
 
     // Test state
     let currentQuestionIndex = 0;
     let userScore = 0;
-    let userAnswers = [];
+    // userAnswers 배열은 각 답변을 객체 형태로 저장: { questionIndex: number, text: string, score: number }
+    let userAnswers = []; 
     let currentTestId = null; // For the first user
     let linkedTestId = null; // For the second user, this is the first user's testId
     let participantType = 'partner1'; // 기본값은 'partner1', URL 파라미터에 따라 변경될 수 있음
@@ -167,8 +169,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function initializeTest() {
         const urlParams = new URLSearchParams(window.location.search);
         const sharedTestId = urlParams.get('test_id');
-        const p1Days = urlParams.get('days1'); // 파트너1(링크 생성자)의 사귄 날짜
-        const p1Time = urlParams.get('time1'); // 파트너1의 입력 시간
+        const p1Days = urlParams.get('days1');
+        const p1Time = urlParams.get('time1');
+        const viewAnswersFlag = urlParams.get('view_answers'); // view_answers 파라미터 확인
+
+        if (viewAnswersFlag === 'true' && sharedTestId) {
+            // 상세 답변 비교 화면을 바로 표시
+            startScreen.classList.add('hidden');
+            testScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            combinedResultScreen.classList.add('hidden');
+            surpriseQuestionScreen.classList.add('hidden');
+            
+            if (detailedAnswersPageContainer) {
+                detailedAnswersPageContainer.classList.remove('hidden');
+                renderDetailedAnswersView(sharedTestId, detailedAnswersPageContainer);
+            }
+            return; // 일반 테스트 초기화 로직 중단
+        }
 
         if (sharedTestId) {
             linkedTestId = sharedTestId;
@@ -200,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // testScreen.classList.remove('hidden'); // 이 부분은 깜짝 질문 완료 후로 이동
         resultScreen.classList.add('hidden');
         combinedResultScreen.classList.add('hidden');
+        detailedAnswersPageContainer.classList.add('hidden'); // 상세 답변 페이지도 숨김
         // displayQuestion(); // 이 부분도 깜짝 질문 완료 후로 이동
     });
 
@@ -269,11 +288,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function selectAnswer(score, answerText) { // answerText는 userAnswers에 저장할 경우 필요
-        userScore += score;
-        // userAnswers에 점수와 함께 선택한 답변 텍스트도 저장할 수 있습니다.
-        // userAnswers.push({ score: score, text: answerText }); 
-        userAnswers.push(score); // 현재는 점수만 저장
+    function selectAnswer(score, answerText) { // answerText 파라미터는 이미 받고 있음
+        // 현재 질문에 대한 이전 답변이 있다면 제거하고 점수 조정
+        const existingAnswerIndex = userAnswers.findIndex(ans => ans.questionIndex === currentQuestionIndex);
+        if (existingAnswerIndex > -1) {
+            userScore -= userAnswers[existingAnswerIndex].score; // 이전 점수 차감
+            userAnswers.splice(existingAnswerIndex, 1); // 이전 답변 제거
+        }
+
+        // 새 답변 추가
+        userAnswers.push({ 
+            questionIndex: currentQuestionIndex, 
+            selectedOptionText: answerText, 
+            score: score 
+        });
+        userScore += score; // 새 점수 합산
         
         currentQuestionIndex++;
         if (currentQuestionIndex < questions.length) {
@@ -284,21 +313,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // prevQuestionButton 이벤트 리스너 추가
+    // prevQuestionButton 이벤트 리스너 수정
     prevQuestionButton.addEventListener('click', () => {
         if (currentQuestionIndex > 0) {
-            currentQuestionIndex--;
-            const lastAnswerScore = userAnswers.pop(); // 마지막 답변 점수 가져오고 배열에서 제거
-            if (typeof lastAnswerScore === 'number') { // 또는 userAnswers에 객체를 저장했다면 객체 구조에 맞게 수정
-                userScore -= lastAnswerScore;
+            // 현재 질문에 대한 답변을 userAnswers에서 제거
+            const lastAnswerIndex = userAnswers.findIndex(ans => ans.questionIndex === currentQuestionIndex -1 );
+            if (lastAnswerIndex > -1) {
+                userScore -= userAnswers[lastAnswerIndex].score;
+                userAnswers.splice(lastAnswerIndex, 1);
             }
+            currentQuestionIndex--;
             displayQuestion();
         }
     });
 
     async function finishTest() {
-        testScreen.classList.add('hidden');
-        // resultScreen.classList.remove('hidden'); // 개인 결과 화면 표시 로직을 조건부로 변경
+        // resultScreen.classList.add('hidden'); // 개인 결과 화면 표시 로직을 조건부로 변경
         // scoreDisplay.textContent = userScore; // 아래 조건문 내부로 이동
         // resultSummaryDisplay.textContent = resultSummary; // 아래 조건문 내부로 이동
 
@@ -313,8 +343,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     resultSummary: resultSummary,
                     participantType: participantType,
                     linkedTestId: linkedTestId,
-                    daysMet: userDaysMet, // 깜짝 질문: 사귄 날짜 추가
-                    timeTakenDays: surpriseTimeTaken // 깜짝 질문: 입력 시간 추가
+                    daysMet: userDaysMet,
+                    timeTakenDays: surpriseTimeTaken,
+                    answers: userAnswers // 상세 답변 배열 전송 (이미 구현됨)
                 }),
             });
             const data = await response.json();
@@ -371,6 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const loadingMessageContainer = document.getElementById('loadingMessageContainer');
         const genericLoadingText = document.getElementById('genericLoadingText');
         const longWaitMessageText = document.getElementById('longWaitMessageText');
+        const viewDetailedAnswersButton = document.getElementById('viewDetailedAnswersButton'); // 버튼 ID 가져오기
         let longLoadTimerId = null;
 
         // 로딩 메시지 표시 (초기 - 일반 메시지)
@@ -442,6 +474,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultScreen.classList.add('hidden'); 
                 combinedResultScreen.classList.remove('hidden');
 
+                // "각자 선택한 답변 보기" 버튼 표시 로직
+                if (participantType === 'partner2' && viewDetailedAnswersButton) {
+                    viewDetailedAnswersButton.classList.remove('hidden');
+                    viewDetailedAnswersButton.onclick = () => {
+                        const currentUrl = new URL(window.location.href);
+                        currentUrl.searchParams.set('view_answers', 'true');
+                        // originalTestId는 이미 URL의 test_id로 존재해야 함
+                        // days1과 time1 파라미터도 현재 URL에 있어야 함 (combined-result-screen에 도달했다면)
+                        window.location.href = currentUrl.toString();
+                    };
+                } else if (viewDetailedAnswersButton) {
+                    viewDetailedAnswersButton.classList.add('hidden');
+                }
+
             } else {
                 console.log('One or both partner results are missing. Data:', data);
                 mySummaryCombined.textContent = "애인 또는 나의 결과 정보를 가져오는 데 실패했습니다.";
@@ -509,8 +555,12 @@ document.addEventListener('DOMContentLoaded', () => {
         testScreen.classList.add('hidden');
         resultScreen.classList.add('hidden');
         combinedResultScreen.classList.add('hidden');
-        surpriseQuestionScreen.classList.add('hidden'); // Ensure surprise screen is hidden
-        prevQuestionButton.classList.add('hidden'); // 이전 질문 버튼도 숨김
+        surpriseQuestionScreen.classList.add('hidden');
+        prevQuestionButton.classList.add('hidden');
+        if (detailedAnswersPageContainer) { // 상세 답변 페이지 숨기기 및 내용 초기화
+            detailedAnswersPageContainer.classList.add('hidden');
+            detailedAnswersPageContainer.innerHTML = '';
+        }
 
         window.history.pushState({}, document.title, window.location.pathname); // Clear query params
         
@@ -531,7 +581,83 @@ document.addEventListener('DOMContentLoaded', () => {
 
         shareSection.classList.add('hidden');
         partnerResultPrompt.classList.add('hidden');
+        
+        // 상세 답변 페이지가 있다면 숨김 (위에서 이미 처리했지만, 중복 확인)
+        // const detailedAnswersPageContainer = document.getElementById('detailedAnswersPage');
+        // if (detailedAnswersPageContainer) {
+        //     detailedAnswersPageContainer.classList.add('hidden');
+        //     detailedAnswersPageContainer.innerHTML = ''; // 내용도 비움
+        // }
     });
+
+    async function renderDetailedAnswersView(testId, container) {
+        container.innerHTML = '<p>두 분의 상세 답변을 불러오는 중입니다...</p>';
+        try {
+            const response = await fetch(`${API_BASE_URL}/test/pair/${testId}/answers`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || '상세 답변 정보를 가져오는데 실패했습니다.');
+            }
+
+            const partner1Result = data.partner1Test;
+            const partner2Result = data.partner2Test;
+
+            if (!partner1Result || !partner2Result || !partner1Result.answers || !partner2Result.answers) {
+                // 데이터가 불완전할 경우 사용자에게 알림
+                let errorMessage = '상세 답변 정보가 완전하지 않습니다.';
+                if (!partner1Result || !partner1Result.answers) errorMessage += ' (애인 정보 부족)';
+                if (!partner2Result || !partner2Result.answers) errorMessage += ' (내 정보 부족)';
+                throw new Error(errorMessage);
+            }
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const p1Days = urlParams.get('days1') || (partner1Result ? partner1Result.daysMet : '');
+            const p1Time = urlParams.get('time1') || (partner1Result ? partner1Result.timeTakenDays : '');
+
+            let backToCombinedLinkHref = `${window.location.pathname}?test_id=${testId}`;
+            if (p1Days !== null && p1Days !== undefined && p1Days !== '') backToCombinedLinkHref += `&days1=${p1Days}`;
+            if (p1Time !== null && p1Time !== undefined && p1Time !== '') backToCombinedLinkHref += `&time1=${p1Time}`;
+
+
+            let comparisonHtml = `<h2>질문별 선택 답변 상세 비교</h2>
+                                  <p><a href="${backToCombinedLinkHref}">종합 결과로 돌아가기</a></p><hr>`;
+            
+            questions.forEach((question, index) => {
+                const p1AnswerObj = partner1Result.answers.find(ans => ans.questionIndex === index);
+                const p2AnswerObj = partner2Result.answers.find(ans => ans.questionIndex === index);
+
+                const p1AnswerText = p1AnswerObj ? p1AnswerObj.selectedOptionText : "답변 없음 (이전 버전 데이터일 수 있습니다)";
+                const p2AnswerText = p2AnswerObj ? p2AnswerObj.selectedOptionText : "답변 없음 (이전 버전 데이터일 수 있습니다)";
+
+                comparisonHtml += `
+                    <div class="answer-comparison-item" style="margin-bottom: 20px; padding: 10px; border: 1px solid #eee; border-radius: 5px;">
+                        <h4 style="margin-top:0;">질문 ${index + 1}: ${question.text}</h4>
+                        <p><strong>애인(링크 생성자)의 선택:</strong> ${p1AnswerText}</p>
+                        <p><strong>나(링크 참여자)의 선택:</strong> ${p2AnswerText}</p>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = comparisonHtml;
+
+            const restartDetailedViewButton = document.createElement('button');
+            restartDetailedViewButton.textContent = '테스트 다시하기';
+            restartDetailedViewButton.className = 'button'; // 스타일 적용
+            restartDetailedViewButton.style.marginTop = '20px';
+            restartDetailedViewButton.onclick = () => {
+                // 전역 restartButton의 클릭 이벤트를 트리거하거나, 동일 로직 수행
+                document.getElementById('restart-button').click();
+            };
+            container.appendChild(restartDetailedViewButton);
+
+
+        } catch (error) {
+            console.error("Error rendering detailed answers view:", error);
+            container.innerHTML = `<p>상세 답변을 표시하는 중 오류가 발생했습니다: ${error.message}</p> 
+                                   <p><a href="${window.location.pathname}">테스트 처음으로 돌아가기</a></p>`;
+        }
+    }
 
     // Initialize
     initializeTest();
