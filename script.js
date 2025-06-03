@@ -628,12 +628,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const p1Days = urlParams.get('days1') || (partner1Result ? partner1Result.daysMet : '');
             const p1Time = urlParams.get('time1') || (partner1Result ? partner1Result.timeTakenDays : '');
 
-            let backToCombinedLinkHref = `${window.location.pathname}?test_id=${testId}`;
-            if (p1Days !== null && p1Days !== undefined && p1Days !== '') backToCombinedLinkHref += `&days1=${p1Days}`;
-            if (p1Time !== null && p1Time !== undefined && p1Time !== '') backToCombinedLinkHref += `&time1=${p1Time}`;
-
-            let detailedViewHtml = `<h2>질문별 선택 답변 상세 비교</h2>
-                                  <p><a href="${backToCombinedLinkHref}" class="button-link">종합 결과로 돌아가기</a></p><hr style="margin-bottom: 20px;">`;
+            let detailedViewHtml = `<h2 style="text-align: center; color: #333; margin-bottom: 10px; font-size: 1.5em; font-weight: bold;">선택한 답변을 비교해보세요!</h2>
+                                  <hr style="margin-bottom: 20px; border: 0; border-top: 1px solid #eee;">`;
             
             questions.forEach((question, index) => {
                 const p1AnswerObj = partner1Result.answers.find(ans => ans.questionIndex === index);
@@ -689,15 +685,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('restart-button').click();
             };
             container.appendChild(restartDetailedViewButton);
-
-            // "종합 결과로 돌아가기" 링크에도 버튼 스타일 적용
-            const backLink = container.querySelector('a[href*="test_id"]');
-            if (backLink) {
-                backLink.classList.add('button');
-                backLink.style.textDecoration = 'none';
-                backLink.style.display = 'inline-block';
-                backLink.style.marginBottom = '10px';
-            }
 
 
         } catch (error) {
