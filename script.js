@@ -367,11 +367,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchAndDisplayCombinedResults(originalTestId) {
+        const loadingMessageContainer = document.getElementById('loadingMessageContainer');
+        const genericLoadingText = document.getElementById('genericLoadingText');
+        const longWaitMessageText = document.getElementById('longWaitMessageText');
+        let longLoadTimerId = null;
+
+        // 로딩 메시지 표시 (초기 - 일반 메시지)
+        if (loadingMessageContainer && genericLoadingText && longWaitMessageText) {
+            genericLoadingText.textContent = "결과를 불러오는 중입니다...";
+            longWaitMessageText.classList.add('hidden'); // 긴 대기 메시지는 일단 숨김
+            loadingMessageContainer.classList.remove('hidden');
+
+            // 일정 시간(예: 3초) 후 "30초 소요" 메시지 표시 설정
+            longLoadTimerId = setTimeout(() => {
+                longWaitMessageText.classList.remove('hidden');
+            }, 3000); // 3초 후 실행 (이 시간은 조절 가능)
+        }
+
+        // 다른 화면 숨김 (필요에 따라)
+        // resultScreen.classList.add('hidden'); // 이 함수 호출 전에 이미 숨겨져 있을 수 있음
+
         try {
             const response = await fetch(`${API_BASE_URL}/test/pair/${originalTestId}`);
             const data = await response.json();
 
-            console.log('Combined results data from server:', data); // <--- 서버 응답 데이터 확인
+            console.log('Combined results data from server:', data);
 
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to fetch combined results');
@@ -380,20 +400,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const partner1Result = data.partner1Test;
             const partner2Result = data.partner2Test;
 
-            console.log('Partner 1 Result (from server):', partner1Result); // <--- partner1 데이터 확인
-            console.log('Partner 2 Result (from server):', partner2Result); // <--- partner2 데이터 확인
+            console.log('Partner 1 Result (from server):', partner1Result);
+            console.log('Partner 2 Result (from server):', partner2Result);
 
             if (partner1Result && partner2Result) {
-                // 현재 사용자는 partner2라고 가정 (공유 링크를 통해 접속했으므로)
-                // '나의 결과'는 partner2, '애인의 결과'는 partner1
                 myScoreCombined.textContent = partner2Result.score;
                 mySummaryCombined.textContent = partner2Result.resultSummary;
 
-                // partner2Result.daysMet와 partner2Result.timeTakenDays가 undefined가 아닌지 확인
                 if (typeof partner2Result.daysMet !== 'undefined' && partner2Result.daysMet !== null) {
                     myDaysCombinedDisplay.textContent = partner2Result.daysMet;
                 } else {
-                    myDaysCombinedDisplay.textContent = '입력 안함'; // 또는 'N/A'
+                    myDaysCombinedDisplay.textContent = '입력 안함';
                 }
 
                 if (typeof partner2Result.timeTakenDays !== 'undefined' && partner2Result.timeTakenDays !== null) {
@@ -404,9 +421,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 partnerScoreCombined.textContent = partner1Result.score;
                 partnerSummaryCombined.textContent = partner1Result.resultSummary;
-                // partner1의 정보는 URL 파라미터에서 가져온 값을 우선 사용하거나, 서버 응답을 사용
-                // partnerDaysMet는 URL에서 가져온 값, partnerTimeTakenDays도 URL에서 가져온 값
-                if (partnerDaysMet !== null) { // URL 파라미터에 partner1의 days 정보가 있다면 사용
+
+                if (partnerDaysMet !== null) {
                     partnerDaysCombinedDisplay.textContent = partnerDaysMet;
                 } else if (typeof partner1Result.daysMet !== 'undefined' && partner1Result.daysMet !== null) {
                     partnerDaysCombinedDisplay.textContent = partner1Result.daysMet;
@@ -414,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     partnerDaysCombinedDisplay.textContent = '입력 안함';
                 }
 
-                if (partnerTimeTakenDays !== null) { // URL 파라미터에 partner1의 time 정보가 있다면 사용
+                if (partnerTimeTakenDays !== null) {
                     partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays;
                 } else if (typeof partner1Result.timeTakenDays !== 'undefined' && partner1Result.timeTakenDays !== null) {
                     partnerTimeDaysCombinedDisplay.textContent = partner1Result.timeTakenDays;
@@ -426,28 +442,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 combinedResultScreen.classList.remove('hidden');
 
             } else {
-                // 한쪽 결과가 없는 경우 (예: partner2가 아직 테스트를 완료하지 않음)
-                // 이 경우, partner1의 결과만 표시하거나, "애인이 아직 테스트를 완료하지 않았습니다."와 같은 메시지를 표시할 수 있습니다.
-                // 현재 코드는 partner1Result와 partner2Result가 모두 있어야 이 블록으로 들어옵니다.
-                // 만약 data.partner2Test가 null일 수 있다면, 그에 대한 처리가 필요합니다.
                 console.log('One or both partner results are missing. Data:', data);
                 mySummaryCombined.textContent = "애인 또는 나의 결과 정보를 가져오는 데 실패했습니다.";
-                if (partner1Result) { // partner1 정보만 있는 경우
+                if (partner1Result) { 
                     partnerScoreCombined.textContent = partner1Result.score;
                     partnerSummaryCombined.textContent = partner1Result.resultSummary;
                     partnerDaysCombinedDisplay.textContent = partnerDaysMet !== null ? partnerDaysMet : (partner1Result.daysMet !== null ? partner1Result.daysMet : '입력 안함');
                     partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays !== null ? partnerTimeTakenDays : (partner1Result.timeTakenDays !== null ? partner1Result.timeTakenDays : 'N/A');
                 }
-                // throw new Error('두 참여자의 결과를 모두 가져오지 못했습니다.'); // 이 부분은 상황에 따라 조정
                 resultScreen.classList.add('hidden'); 
                 combinedResultScreen.classList.remove('hidden');
             }
 
         } catch (error) {
             console.error('Error fetching combined results:', error);
-            // 비교 결과 화면에 오류 메시지 표시
             myScoreCombined.textContent = "오류";
-            mySummaryCombined.textContent = ""; // Clear previous summary
+            mySummaryCombined.textContent = ""; 
             myDaysCombinedDisplay.textContent = "N/A";
             myTimeDaysCombinedDisplay.textContent = "N/A";
 
@@ -456,8 +466,17 @@ document.addEventListener('DOMContentLoaded', () => {
             partnerDaysCombinedDisplay.textContent = "N/A";
             partnerTimeDaysCombinedDisplay.textContent = "N/A";
             
-            resultScreen.classList.add('hidden'); // 개인 결과 화면 숨김
-            combinedResultScreen.classList.remove('hidden'); // 비교 결과 화면(오류 메시지 포함) 표시
+            resultScreen.classList.add('hidden'); 
+            combinedResultScreen.classList.remove('hidden'); 
+        } finally {
+            // 로딩 메시지 숨김
+            if (loadingMessageContainer) {
+                loadingMessageContainer.classList.add('hidden');
+            }
+            // 설정된 타이머가 있다면 해제 (결과가 빨리 와서 "30초" 메시지가 뜨기 전에)
+            if (longLoadTimerId) {
+                clearTimeout(longLoadTimerId);
+            }
         }
     }
 
