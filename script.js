@@ -411,72 +411,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 로딩 메시지 표시 (초기 - 일반 메시지)
         if (loadingMessageContainer && genericLoadingText && longWaitMessageText) {
-            genericLoadingText.textContent = "결과를 불러오는 중입니다...";
-            longWaitMessageText.classList.add('hidden'); // 긴 대기 메시지는 일단 숨김
             loadingMessageContainer.classList.remove('hidden');
+            genericLoadingText.classList.remove('hidden');
+            longWaitMessageText.classList.add('hidden');
 
-            // 일정 시간(예: 3초) 후 "30초 소요" 메시지 표시 설정
+            // 5초 후 긴 대기 메시지 표시
             longLoadTimerId = setTimeout(() => {
+                genericLoadingText.classList.add('hidden');
                 longWaitMessageText.classList.remove('hidden');
-            }, 3000); // 3초 후 실행 (이 시간은 조절 가능)
+            }, 5000);
         }
-
-        // 다른 화면 숨김 (필요에 따라)
-        // resultScreen.classList.add('hidden'); // 이 함수 호출 전에 이미 숨겨져 있을 수 있음
 
         try {
             const response = await fetch(`${API_BASE_URL}/test/pair/${originalTestId}`);
             const data = await response.json();
 
-            console.log('Combined results data from server:', data);
+            if (response.ok && data.myResult && data.partnerResult) {
+                // 결과 표시
+                myScoreCombinedDisplay.textContent = data.myResult.score;
+                mySummaryCombinedDisplay.textContent = data.myResult.resultSummary;
+                partnerScoreCombinedDisplay.textContent = data.partnerResult.score;
+                partnerSummaryCombinedDisplay.textContent = data.partnerResult.resultSummary;
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to fetch combined results');
-            }
+                // 날짜 비교를 위한 변수
+                const myDays = data.myResult.daysMet;
+                const partnerDays = data.partnerResult.daysMet;
+                const daysMatch = myDays === partnerDays;
+                
+                // 날짜 색상 결정 (같으면 초록색, 다르면 빨간색)
+                const dateColor = daysMatch ? '#28a745' : '#dc3545'; // Bootstrap 스타일 기준 색상
+                const dateMatchStatus = daysMatch ? '✓ 일치' : '✗ 불일치';
 
-            const partner1Result = data.partner1Test;
-            const partner2Result = data.partner2Test;
-
-            console.log('Partner 1 Result (from server):', partner1Result);
-            console.log('Partner 2 Result (from server):', partner2Result);
-
-            if (partner1Result && partner2Result) {
-                myScoreCombined.textContent = partner2Result.score;
-                mySummaryCombined.textContent = partner2Result.resultSummary;
-
-                if (typeof partner2Result.daysMet !== 'undefined' && partner2Result.daysMet !== null) {
-                    myDaysCombinedDisplay.textContent = partner2Result.daysMet;
-                } else {
-                    myDaysCombinedDisplay.textContent = '입력 안함';
-                }
-
-                if (typeof partner2Result.timeTakenDays !== 'undefined' && partner2Result.timeTakenDays !== null) {
-                    myTimeDaysCombinedDisplay.textContent = partner2Result.timeTakenDays;
-                } else {
-                    myTimeDaysCombinedDisplay.textContent = 'N/A';
-                }
-
-                partnerScoreCombined.textContent = partner1Result.score;
-                partnerSummaryCombined.textContent = partner1Result.resultSummary;
-
-                if (partnerDaysMet !== null) {
-                    partnerDaysCombinedDisplay.textContent = partnerDaysMet;
-                } else if (typeof partner1Result.daysMet !== 'undefined' && partner1Result.daysMet !== null) {
-                    partnerDaysCombinedDisplay.textContent = partner1Result.daysMet;
-                } else {
-                    partnerDaysCombinedDisplay.textContent = '입력 안함';
-                }
-
-                if (partnerTimeTakenDays !== null) {
-                    partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays;
-                } else if (typeof partner1Result.timeTakenDays !== 'undefined' && partner1Result.timeTakenDays !== null) {
-                    partnerTimeDaysCombinedDisplay.textContent = partner1Result.timeTakenDays;
-                } else {
-                    partnerTimeDaysCombinedDisplay.textContent = 'N/A';
+                // 나의 결과 - 날짜 정보 꾸미기
+                if (myDaysCombinedDisplay) {
+                    myDaysCombinedDisplay.innerHTML = `<span style="color: ${dateColor}; font-weight: bold; background-color: ${daysMatch ? '#d4f8d4' : '#ffe6e6'}; padding: 3px 8px; border-radius: 4px; border: 1px solid ${dateColor};">${myDays}일 ${daysMatch ? '' : '(내 기준)'}</span>`;
                 }
                 
+                // 나의 결과 - 시간 정보 꾸미기
+                if (myTimeDaysCombinedDisplay) {
+                    myTimeDaysCombinedDisplay.innerHTML = `<span style="color: #6c757d; font-weight: bold; background-color: #f8f9fa; padding: 3px 8px; border-radius: 4px; border: 1px solid #dee2e6;">${data.myResult.timeTakenDays}초</span>`;
+                }
+
+                // 애인의 결과 - 날짜 정보 꾸미기
+                if (partnerDaysCombinedDisplay) {
+                    partnerDaysCombinedDisplay.innerHTML = `<span style="color: ${dateColor}; font-weight: bold; background-color: ${daysMatch ? '#d4f8d4' : '#ffe6e6'}; padding: 3px 8px; border-radius: 4px; border: 1px solid ${dateColor};">${partnerDays}일 ${daysMatch ? '' : '(애인 기준)'}</span>`;
+                }
+
+                // 애인의 결과 - 시간 정보 꾸미기
+                if (partnerTimeDaysCombinedDisplay) {
+                    partnerTimeDaysCombinedDisplay.innerHTML = `<span style="color: #6c757d; font-weight: bold; background-color: #f8f9fa; padding: 3px 8px; border-radius: 4px; border: 1px solid #dee2e6;">${data.partnerResult.timeTakenDays}초</span>`;
+                }
+
+                // 날짜 일치/불일치 상태를 화면 상단에 표시 (선택사항)
+                const resultComparison = document.querySelector('.result-comparison');
+                if (resultComparison) {
+                    // 기존 날짜 상태 메시지가 있다면 제거
+                    const existingDateStatus = resultComparison.querySelector('.date-match-status');
+                    if (existingDateStatus) {
+                        existingDateStatus.remove();
+                    }
+                    
+                    // 새로운 날짜 상태 메시지 추가
+                    const dateStatusDiv = document.createElement('div');
+                    dateStatusDiv.className = 'date-match-status';
+                    dateStatusDiv.style.cssText = `
+                        text-align: center; 
+                        margin-bottom: 15px; 
+                        padding: 10px; 
+                        background-color: ${daysMatch ? '#d4f8d4' : '#ffe6e6'}; 
+                        border: 1px solid ${dateColor}; 
+                        border-radius: 6px; 
+                        font-weight: bold; 
+                        color: ${dateColor};
+                    `;
+                    dateStatusDiv.innerHTML = `사귄 날짜 입력: ${dateMatchStatus} ${daysMatch ? '🎉' : '🤔'}`;
+                    resultComparison.insertBefore(dateStatusDiv, resultComparison.firstChild);
+                }
+
                 resultScreen.classList.add('hidden'); 
                 combinedResultScreen.classList.remove('hidden');
+                testScreen.classList.add('hidden'); // 여기에도 추가 (혹시 모를 경우 대비)
 
                 // "각자 선택한 답변 보기" 버튼 표시 로직
                 if (participantType === 'partner2' && viewDetailedAnswersButton) {
@@ -493,29 +507,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
             } else {
-                console.log('One or both partner results are missing. Data:', data);
-                mySummaryCombined.textContent = "애인 또는 나의 결과 정보를 가져오는 데 실패했습니다.";
-                if (partner1Result) { 
-                    partnerScoreCombined.textContent = partner1Result.score;
-                    partnerSummaryCombined.textContent = partner1Result.resultSummary;
-                    partnerDaysCombinedDisplay.textContent = partnerDaysMet !== null ? partnerDaysMet : (partner1Result.daysMet !== null ? partner1Result.daysMet : '입력 안함');
-                    partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays !== null ? partnerTimeTakenDays : (partner1Result.timeTakenDays !== null ? partner1Result.timeTakenDays : 'N/A');
+                // 파트너 결과가 아직 없음 - 개인 결과 화면으로 전환하되, 날짜/시간 정보도 꾸미기
+                console.log("Partner result not yet available. Switching to individual result screen.");
+                scoreDisplay.textContent = userScore;
+                resultSummaryDisplay.textContent = getResultSummary(userScore);
+                
+                // 개인 결과 화면에서도 날짜/시간 정보 꾸미기 (있는 경우)
+                const myDaysIndividualDisplay = document.getElementById('my-days-individual'); // 개인 결과 화면의 날짜 표시 요소 (있다면)
+                const myTimeIndividualDisplay = document.getElementById('my-time-individual'); // 개인 결과 화면의 시간 표시 요소 (있다면)
+                
+                if (myDaysIndividualDisplay) {
+                    myDaysIndividualDisplay.innerHTML = `<span style="color: #6c757d; font-weight: bold; background-color: #f8f9fa; padding: 3px 8px; border-radius: 4px; border: 1px solid #dee2e6;">${userDaysMet}일</span>`;
                 }
-                resultScreen.classList.add('hidden'); 
-                combinedResultScreen.classList.remove('hidden');
+                if (myTimeIndividualDisplay) {
+                    myTimeIndividualDisplay.innerHTML = `<span style="color: #6c757d; font-weight: bold; background-color: #f8f9fa; padding: 3px 8px; border-radius: 4px; border: 1px solid #dee2e6;">${surpriseTimeTaken}초</span>`;
+                }
+
+                resultScreen.classList.remove('hidden');
+                combinedResultScreen.classList.add('hidden');
+                partnerResultPrompt.classList.add('hidden');
+                console.log("Displaying individual result for a fallback scenario.");
             }
 
         } catch (error) {
-            console.error('Error fetching combined results:', error);
-            myScoreCombined.textContent = "오류";
-            mySummaryCombined.textContent = ""; 
-            myDaysCombinedDisplay.textContent = "N/A";
-            myTimeDaysCombinedDisplay.textContent = "N/A";
-
-            partnerScoreCombined.textContent = "오류";
-            partnerSummaryCombined.textContent = `결과 비교 중 오류: ${error.message}`;
-            partnerDaysCombinedDisplay.textContent = "N/A";
-            partnerTimeDaysCombinedDisplay.textContent = "N/A";
+            console.error("Error fetching combined results:", error);
+            myScoreCombinedDisplay.textContent = "오류";
+            mySummaryCombinedDisplay.textContent = "결과를 불러오는데 오류가 발생했습니다.";
+            partnerScoreCombinedDisplay.textContent = "오류";
+            partnerSummaryCombinedDisplay.textContent = "결과를 불러오는데 오류가 발생했습니다.";
+            
+            // 오류 시에도 날짜/시간 정보 초기화
+            if (myDaysCombinedDisplay) myDaysCombinedDisplay.textContent = "N/A";
+            if (myTimeDaysCombinedDisplay) myTimeDaysCombinedDisplay.textContent = "N/A";
+            if (partnerDaysCombinedDisplay) partnerDaysCombinedDisplay.textContent = "N/A";
+            if (partnerTimeDaysCombinedDisplay) partnerTimeDaysCombinedDisplay.textContent = "N/A";
             
             resultScreen.classList.add('hidden'); 
             combinedResultScreen.classList.remove('hidden'); 
@@ -525,7 +550,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (loadingMessageContainer) {
                 loadingMessageContainer.classList.add('hidden');
             }
-            // 설정된 타이머가 있다면 해제 (결과가 빨리 와서 "30초" 메시지가 뜨기 전에)
             if (longLoadTimerId) {
                 clearTimeout(longLoadTimerId);
             }
@@ -542,9 +566,9 @@ document.addEventListener('DOMContentLoaded', () => {
 "솔직히 그 친구랑 너무 자주 연락하는 거 아니야?  신경 쓰여. 왜 나 말고 그 친구랑 그렇게 친해?"`; // 60-79점
         if (score >= 40) return `나도 모르게 기분이 나빠져버렷! 왠지 모르게 불편한 당신
 "음... 그 친구랑은 자주 만나는 편이야? 뭔가 둘이 분위기가 좀 다른 것 같기도 하고..."`;   // 40-59점
-        if (score >= 20) return `어라? 갑자기 촉이 오네? 살짝은 신경 쓰이는 당신의 연인
+        if (score >= 20) return `어라? 갑자기 촉이 오네? 살짝은 신경 쓰이는 당신
 "오늘 누구 만났어? 아, 그 친구? 잘 놀았어? 히히."`; // 20-39점
-        return `완전 쿨내 진동! 내 사람 믿어주는 당신의 연인
+        return `완전 쿨내 진동! 내 사람 믿어주는 당신
 "어? X사친이랑 논다고? 응, 재미있게 놀다 와! 나도 내 할 일 할게!"`; // 0-19점 (가장 쿨함)
     }
 
