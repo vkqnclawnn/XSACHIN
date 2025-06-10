@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     linkedTestId: linkedTestId,
                     daysMet: userDaysMet,
                     timeTakenDays: surpriseTimeTaken,
-                    answers: userAnswers // 상세 답변 배열 전송 (이미 구현됨)
+                    answers: userAnswers // 상세 답변 배열 전송
                 }),
             });
 
@@ -366,7 +366,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 partnerResultPrompt.classList.remove('hidden');
 
             } else if (participantType === 'partner2' && linkedTestId) {
-                // 두 번째 사용자: 결합된 결과 바로 표시
+                // 두 번째 사용자: result-screen을 표시하지 않고 바로 combined-result-screen으로
+                resultScreen.classList.add('hidden'); // result-screen 숨김 유지
+                combinedResultScreen.classList.add('hidden'); // 일시적으로 숨김 (fetchAndDisplayCombinedResults에서 표시)
+                
                 console.log("Partner 2 completed the test. Fetching combined results...");
                 await fetchAndDisplayCombinedResults(linkedTestId);
                 
@@ -383,11 +386,22 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error finishing test:', error);
             testScreen.classList.add('hidden'); // 오류 발생 시에도 테스트 화면 숨기기
-            // 오류 발생 시 개인 결과 화면에 오류 메시지 표시 (combinedResultScreen이 활성화되지 않은 경우)
-            if (combinedResultScreen.classList.contains('hidden')) {
+            
+            // 파트너 2의 경우 오류가 발생해도 combined-result-screen에 오류 표시
+            if (participantType === 'partner2') {
+                myScoreCombinedDisplay.textContent = "오류";
+                mySummaryCombinedDisplay.textContent = "결과 저장 중 오류가 발생했습니다.";
+                partnerScoreCombinedDisplay.textContent = "오류";
+                partnerSummaryCombinedDisplay.textContent = "애인의 결과를 불러올 수 없습니다.";
+                
+                resultScreen.classList.add('hidden');
+                combinedResultScreen.classList.remove('hidden');
+            } else {
+                // 파트너 1의 경우 기존 오류 처리
                 scoreDisplay.textContent = "오류";
                 resultSummaryDisplay.textContent = "결과 저장 중 오류가 발생했습니다. 새로고침 후 다시 시도해 주세요.";
                 resultScreen.classList.remove('hidden');
+                combinedResultScreen.classList.add('hidden');
                 shareSection.classList.add('hidden');
                 partnerResultPrompt.classList.add('hidden');
             }
@@ -661,3 +675,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize
     initializeTest();
 });
+
+// script.js에 추가
+const showColdStartMessage = () => {
+    if (loadingMessageContainer) {
+        loadingMessageContainer.innerHTML = `
+            <p>🚀 서버가 시작되고 있습니다...</p>
+            <p>처음 접속시 30초 정도 소요될 수 있습니다.</p>
+            <p>잠시만 기다려 주세요! ⏰</p>
+        `;
+    }
+};
