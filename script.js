@@ -327,9 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function finishTest() {
-        // resultScreen.classList.add('hidden'); // 개인 결과 화면 표시 로직을 조건부로 변경
-        // scoreDisplay.textContent = userScore; // 아래 조건문 내부로 이동
-        // resultSummaryDisplay.textContent = resultSummary; // 아래 조건문 내부로 이동
         testScreen.classList.add('hidden'); // 테스트 화면 숨기기
 
         const resultSummary = getResultSummary(userScore);
@@ -348,14 +345,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     answers: userAnswers // 상세 답변 배열 전송 (이미 구현됨)
                 }),
             });
-            const data = await response.json();
 
+            const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to save test results');
             }
 
             currentTestId = data.testId; // The ID of the test just taken
-            // testScreen.classList.add('hidden'); // 위치 이동: try 블록 시작 부분으로
 
             if (participantType === 'partner1' && data.isSharedLinkOrigin) {
                 // 첫 번째 사용자: 개인 결과 화면 및 공유 링크 표시
@@ -363,23 +359,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultSummaryDisplay.textContent = resultSummary;
                 resultScreen.classList.remove('hidden'); // 개인 결과 화면 표시
 
-                shareSection.classList.remove('hidden');
-                partnerResultPrompt.classList.remove('hidden');
-                // 공유 URL에 깜짝 질문 정보 추가
+                // 공유 링크 생성 및 표시
                 const shareUrl = `${window.location.origin}${window.location.pathname}?test_id=${currentTestId}&days1=${userDaysMet}&time1=${surpriseTimeTaken}`;
                 shareLinkInput.value = shareUrl;
+                shareSection.classList.remove('hidden');
+                partnerResultPrompt.classList.remove('hidden');
+
             } else if (participantType === 'partner2' && linkedTestId) {
-                // 공유받은 사용자: 바로 두 사람 결과 비교 화면 표시
-                resultScreen.classList.add('hidden'); // 개인 결과 화면을 명시적으로 숨김
-                shareSection.classList.add('hidden');
-                partnerResultPrompt.classList.add('hidden');
-                await fetchAndDisplayCombinedResults(linkedTestId); // 두 사람 결과 비교 함수 호출
+                // 두 번째 사용자: 결합된 결과 바로 표시
+                console.log("Partner 2 completed the test. Fetching combined results...");
+                await fetchAndDisplayCombinedResults(linkedTestId);
+                
             } else {
-                 // 기타 경우 (예: partner1이지만 isSharedLinkOrigin이 false 등): 개인 결과 화면 표시
+                // 예외 상황: 개인 결과 화면 표시
                 scoreDisplay.textContent = userScore;
                 resultSummaryDisplay.textContent = resultSummary;
                 resultScreen.classList.remove('hidden');
-
                 shareSection.classList.add('hidden');
                 partnerResultPrompt.classList.add('hidden');
                 console.log("Displaying individual result for a fallback scenario.");
@@ -391,12 +386,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // 오류 발생 시 개인 결과 화면에 오류 메시지 표시 (combinedResultScreen이 활성화되지 않은 경우)
             if (combinedResultScreen.classList.contains('hidden')) {
                 scoreDisplay.textContent = "오류";
-                resultSummaryDisplay.textContent = `오류가 발생했습니다: ${error.message}`;
+                resultSummaryDisplay.textContent = "결과 저장 중 오류가 발생했습니다. 새로고침 후 다시 시도해 주세요.";
                 resultScreen.classList.remove('hidden');
                 shareSection.classList.add('hidden');
                 partnerResultPrompt.classList.add('hidden');
             }
-            // fetchAndDisplayCombinedResults 내부에서 오류 발생 시 해당 함수가 combinedResultScreen에 오류를 표시할 것임
         }
     }
 
