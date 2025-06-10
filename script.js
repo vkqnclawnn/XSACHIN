@@ -444,38 +444,71 @@ document.addEventListener('DOMContentLoaded', () => {
                 myScoreCombined.textContent = partner2Result.score;
                 mySummaryCombined.textContent = partner2Result.resultSummary;
 
-                if (typeof partner2Result.daysMet !== 'undefined' && partner2Result.daysMet !== null) {
-                    myDaysCombinedDisplay.textContent = partner2Result.daysMet;
-                } else {
-                    myDaysCombinedDisplay.textContent = '입력 안함';
-                }
+                const myDays = data.myResult.daysMet;
+                const partnerDays = data.partnerResult.daysMet;
+                const daysMatch = myDays === partnerDays;
+                
+                const dateColor = daysMatch ? '#28a745' : '#dc3545';
+                const dateMatchStatus = daysMatch ? '✓ 일치' : '✗ 불일치';
 
-                if (typeof partner2Result.timeTakenDays !== 'undefined' && partner2Result.timeTakenDays !== null) {
-                    myTimeDaysCombinedDisplay.textContent = partner2Result.timeTakenDays;
-                } else {
-                    myTimeDaysCombinedDisplay.textContent = 'N/A';
-                }
-
-                partnerScoreCombined.textContent = partner1Result.score;
-                partnerSummaryCombined.textContent = partner1Result.resultSummary;
-
-                if (partnerDaysMet !== null) {
-                    partnerDaysCombinedDisplay.textContent = partnerDaysMet;
-                } else if (typeof partner1Result.daysMet !== 'undefined' && partner1Result.daysMet !== null) {
-                    partnerDaysCombinedDisplay.textContent = partner1Result.daysMet;
-                } else {
-                    partnerDaysCombinedDisplay.textContent = '입력 안함';
-                }
-
-                if (partnerTimeTakenDays !== null) {
-                    partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays;
-                } else if (typeof partner1Result.timeTakenDays !== 'undefined' && partner1Result.timeTakenDays !== null) {
-                    partnerTimeDaysCombinedDisplay.textContent = partner1Result.timeTakenDays;
-                } else {
-                    partnerTimeDaysCombinedDisplay.textContent = 'N/A';
+                // 나의 결과 - 날짜 정보
+                if (myDaysCombinedDisplay) {
+                    myDaysCombinedDisplay.textContent = `${myDays}일 ${daysMatch ? '' : '(내 기준)'}`;
+                    myDaysCombinedDisplay.style.color = '#590000'; // 요청된 색상
+                    myDaysCombinedDisplay.style.fontSize = '1.1em'; // 글자 크기 증가 (기존보다 크게)
+                    myDaysCombinedDisplay.style.fontWeight = 'bold';
+                    myDaysCombinedDisplay.style.backgroundColor = daysMatch ? '#d4f8d4' : '#ffe6e6';
+                    myDaysCombinedDisplay.style.padding = '3px 8px';
+                    myDaysCombinedDisplay.style.borderRadius = '4px';
+                    myDaysCombinedDisplay.style.border = `1px solid ${dateColor}`;
                 }
                 
-                resultScreen.classList.add('hidden'); 
+                // 나의 결과 - 시간 정보
+                if (myTimeDaysCombinedDisplay) {
+                    myTimeDaysCombinedDisplay.textContent = `${data.myResult.timeTakenDays}초`;
+                    myTimeDaysCombinedDisplay.style.color = '#590000'; // 요청된 색상
+                    myTimeDaysCombinedDisplay.style.fontSize = '1.1em'; // 글자 크기 증가
+                    myTimeDaysCombinedDisplay.style.fontWeight = 'bold';
+                    myTimeDaysCombinedDisplay.style.backgroundColor = '#f8f9fa';
+                    myTimeDaysCombinedDisplay.style.padding = '3px 8px';
+                    myTimeDaysCombinedDisplay.style.borderRadius = '4px';
+                    myTimeDaysCombinedDisplay.style.border = '1px solid #dee2e6';
+                }
+
+                // 애인의 결과 - 날짜 정보
+                if (partnerDaysCombinedDisplay) {
+                    partnerDaysCombinedDisplay.textContent = `${partnerDays}일 ${daysMatch ? '' : '(애인 기준)'}`;
+                    partnerDaysCombinedDisplay.style.color = '#590000'; // 요청된 색상
+                    partnerDaysCombinedDisplay.style.fontSize = '1.1em'; // 글자 크기 증가
+                    partnerDaysCombinedDisplay.style.fontWeight = 'bold';
+                    partnerDaysCombinedDisplay.style.backgroundColor = daysMatch ? '#d4f8d4' : '#ffe6e6';
+                    partnerDaysCombinedDisplay.style.padding = '3px 8px';
+                    partnerDaysCombinedDisplay.style.borderRadius = '4px';
+                    partnerDaysCombinedDisplay.style.border = `1px solid ${dateColor}`;
+                }
+
+                // 애인의 결과 - 시간 정보
+                if (partnerTimeDaysCombinedDisplay) {
+                    partnerTimeDaysCombinedDisplay.textContent = `${data.partnerResult.timeTakenDays}초`;
+                    partnerTimeDaysCombinedDisplay.style.color = '#590000'; // 요청된 색상
+                    partnerTimeDaysCombinedDisplay.style.fontSize = '1.1em'; // 글자 크기 증가
+                    partnerTimeDaysCombinedDisplay.style.fontWeight = 'bold';
+                    partnerTimeDaysCombinedDisplay.style.backgroundColor = '#f8f9fa';
+                    partnerTimeDaysCombinedDisplay.style.padding = '3px 8px';
+                    partnerTimeDaysCombinedDisplay.style.borderRadius = '4px';
+                    partnerTimeDaysCombinedDisplay.style.border = '1px solid #dee2e6';
+                }
+
+                // 날짜 일치/불일치 상태를 화면 상단에 표시
+                const dateStatusContainer = document.getElementById('dateStatusContainer');
+                if (dateStatusContainer) {
+                    dateStatusContainer.innerHTML = `
+                        <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: ${dateColor};">
+                            날짜 일치 여부: ${dateMatchStatus}
+                        </div>
+                    `;
+                }
+                
                 combinedResultScreen.classList.remove('hidden');
 
                 // "각자 선택한 답변 보기" 버튼 표시 로직
