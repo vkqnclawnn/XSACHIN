@@ -440,75 +440,47 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Partner 1 Result (from server):', partner1Result);
             console.log('Partner 2 Result (from server):', partner2Result);
 
-            if (partner1Result && partner2Result) {
-                myScoreCombined.textContent = partner2Result.score;
-                mySummaryCombined.textContent = partner2Result.resultSummary;
+            // Check if both results are valid objects
+            if (partner1Result && typeof partner1Result === 'object' && partner2Result && typeof partner2Result === 'object') {
+                // My results (partner2)
+                myScoreCombined.textContent = partner2Result.hasOwnProperty('score') ? partner2Result.score : '오류';
+                mySummaryCombined.textContent = partner2Result.hasOwnProperty('resultSummary') ? partner2Result.resultSummary : '';
 
-                const myDays = data.myResult.daysMet;
-                const partnerDays = data.partnerResult.daysMet;
-                const daysMatch = myDays === partnerDays;
-                
-                const dateColor = daysMatch ? '#28a745' : '#dc3545';
-                const dateMatchStatus = daysMatch ? '✓ 일치' : '✗ 불일치';
+                if (partner2Result.hasOwnProperty('daysMet') && partner2Result.daysMet !== null) {
+                    myDaysCombinedDisplay.textContent = partner2Result.daysMet;
+                } else {
+                    myDaysCombinedDisplay.textContent = '입력 안함';
+                }
 
-                // 나의 결과 - 날짜 정보
-                if (myDaysCombinedDisplay) {
-                    myDaysCombinedDisplay.textContent = `${myDays}일 ${daysMatch ? '' : '(내 기준)'}`;
-                    myDaysCombinedDisplay.style.color = '#590000'; // 요청된 색상
-                    myDaysCombinedDisplay.style.fontSize = '1.1em'; // 글자 크기 증가 (기존보다 크게)
-                    myDaysCombinedDisplay.style.fontWeight = 'bold';
-                    myDaysCombinedDisplay.style.backgroundColor = daysMatch ? '#d4f8d4' : '#ffe6e6';
-                    myDaysCombinedDisplay.style.padding = '3px 8px';
-                    myDaysCombinedDisplay.style.borderRadius = '4px';
-                    myDaysCombinedDisplay.style.border = `1px solid ${dateColor}`;
+                if (partner2Result.hasOwnProperty('timeTakenDays') && partner2Result.timeTakenDays !== null) {
+                    myTimeDaysCombinedDisplay.textContent = partner2Result.timeTakenDays;
+                } else {
+                    myTimeDaysCombinedDisplay.textContent = 'N/A';
+                }
+
+                // Partner's results (partner1)
+                partnerScoreCombined.textContent = partner1Result.hasOwnProperty('score') ? partner1Result.score : '오류';
+                partnerSummaryCombined.textContent = partner1Result.hasOwnProperty('resultSummary') ? partner1Result.resultSummary : '';
+
+                // Use partnerDaysMet (from URL params, for P1) if available, otherwise fallback to P1 data from server
+                if (partnerDaysMet !== null) {
+                    partnerDaysCombinedDisplay.textContent = partnerDaysMet;
+                } else if (partner1Result.hasOwnProperty('daysMet') && partner1Result.daysMet !== null) {
+                    partnerDaysCombinedDisplay.textContent = partner1Result.daysMet;
+                } else {
+                    partnerDaysCombinedDisplay.textContent = '입력 안함';
+                }
+
+                // Use partnerTimeTakenDays (from URL params, for P1) if available, otherwise fallback to P1 data from server
+                if (partnerTimeTakenDays !== null) {
+                    partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays;
+                } else if (partner1Result.hasOwnProperty('timeTakenDays') && partner1Result.timeTakenDays !== null) {
+                    partnerTimeDaysCombinedDisplay.textContent = partner1Result.timeTakenDays;
+                } else {
+                    partnerTimeDaysCombinedDisplay.textContent = 'N/A';
                 }
                 
-                // 나의 결과 - 시간 정보
-                if (myTimeDaysCombinedDisplay) {
-                    myTimeDaysCombinedDisplay.textContent = `${data.myResult.timeTakenDays}초`;
-                    myTimeDaysCombinedDisplay.style.color = '#590000'; // 요청된 색상
-                    myTimeDaysCombinedDisplay.style.fontSize = '1.1em'; // 글자 크기 증가
-                    myTimeDaysCombinedDisplay.style.fontWeight = 'bold';
-                    myTimeDaysCombinedDisplay.style.backgroundColor = '#f8f9fa';
-                    myTimeDaysCombinedDisplay.style.padding = '3px 8px';
-                    myTimeDaysCombinedDisplay.style.borderRadius = '4px';
-                    myTimeDaysCombinedDisplay.style.border = '1px solid #dee2e6';
-                }
-
-                // 애인의 결과 - 날짜 정보
-                if (partnerDaysCombinedDisplay) {
-                    partnerDaysCombinedDisplay.textContent = `${partnerDays}일 ${daysMatch ? '' : '(애인 기준)'}`;
-                    partnerDaysCombinedDisplay.style.color = '#590000'; // 요청된 색상
-                    partnerDaysCombinedDisplay.style.fontSize = '1.1em'; // 글자 크기 증가
-                    partnerDaysCombinedDisplay.style.fontWeight = 'bold';
-                    partnerDaysCombinedDisplay.style.backgroundColor = daysMatch ? '#d4f8d4' : '#ffe6e6';
-                    partnerDaysCombinedDisplay.style.padding = '3px 8px';
-                    partnerDaysCombinedDisplay.style.borderRadius = '4px';
-                    partnerDaysCombinedDisplay.style.border = `1px solid ${dateColor}`;
-                }
-
-                // 애인의 결과 - 시간 정보
-                if (partnerTimeDaysCombinedDisplay) {
-                    partnerTimeDaysCombinedDisplay.textContent = `${data.partnerResult.timeTakenDays}초`;
-                    partnerTimeDaysCombinedDisplay.style.color = '#590000'; // 요청된 색상
-                    partnerTimeDaysCombinedDisplay.style.fontSize = '1.1em'; // 글자 크기 증가
-                    partnerTimeDaysCombinedDisplay.style.fontWeight = 'bold';
-                    partnerTimeDaysCombinedDisplay.style.backgroundColor = '#f8f9fa';
-                    partnerTimeDaysCombinedDisplay.style.padding = '3px 8px';
-                    partnerTimeDaysCombinedDisplay.style.borderRadius = '4px';
-                    partnerTimeDaysCombinedDisplay.style.border = '1px solid #dee2e6';
-                }
-
-                // 날짜 일치/불일치 상태를 화면 상단에 표시
-                const dateStatusContainer = document.getElementById('dateStatusContainer');
-                if (dateStatusContainer) {
-                    dateStatusContainer.innerHTML = `
-                        <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: ${dateColor};">
-                            날짜 일치 여부: ${dateMatchStatus}
-                        </div>
-                    `;
-                }
-                
+                resultScreen.classList.add('hidden'); 
                 combinedResultScreen.classList.remove('hidden');
 
                 // "각자 선택한 답변 보기" 버튼 표시 로직
@@ -526,14 +498,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
             } else {
-                console.log('One or both partner results are missing. Data:', data);
-                mySummaryCombined.textContent = "애인 또는 나의 결과 정보를 가져오는 데 실패했습니다.";
-                if (partner1Result) { 
-                    partnerScoreCombined.textContent = partner1Result.score;
-                    partnerSummaryCombined.textContent = partner1Result.resultSummary;
-                    partnerDaysCombinedDisplay.textContent = partnerDaysMet !== null ? partnerDaysMet : (partner1Result.daysMet !== null ? partner1Result.daysMet : '입력 안함');
-                    partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays !== null ? partnerTimeTakenDays : (partner1Result.timeTakenDays !== null ? partner1Result.timeTakenDays : 'N/A');
+                console.log('One or both partner results are missing or not valid objects. Data:', data);
+                // Fallback: Display error messages or defaults
+                myScoreCombined.textContent = "오류";
+                mySummaryCombined.textContent = "결과 정보를 가져오는 데 실패했습니다.";
+                myDaysCombinedDisplay.textContent = 'N/A';
+                myTimeDaysCombinedDisplay.textContent = 'N/A';
+
+                partnerScoreCombined.textContent = "오류";
+                partnerSummaryCombined.textContent = "결과 정보를 가져오는 데 실패했습니다.";
+                partnerDaysCombinedDisplay.textContent = 'N/A';
+                partnerTimeDaysCombinedDisplay.textContent = 'N/A';
+
+                // Attempt to display partner1's data if it alone is valid
+                if (partner1Result && typeof partner1Result === 'object') {
+                    partnerScoreCombined.textContent = partner1Result.hasOwnProperty('score') ? partner1Result.score : "오류";
+                    partnerSummaryCombined.textContent = partner1Result.hasOwnProperty('resultSummary') ? partner1Result.resultSummary : "";
+                    if (partnerDaysMet !== null) {
+                        partnerDaysCombinedDisplay.textContent = partnerDaysMet;
+                    } else if (partner1Result.hasOwnProperty('daysMet') && partner1Result.daysMet !== null) {
+                        partnerDaysCombinedDisplay.textContent = partner1Result.daysMet;
+                    } else {
+                        partnerDaysCombinedDisplay.textContent = '입력 안함';
+                    }
+                    if (partnerTimeTakenDays !== null) {
+                        partnerTimeDaysCombinedDisplay.textContent = partnerTimeTakenDays;
+                    } else if (partner1Result.hasOwnProperty('timeTakenDays') && partner1Result.timeTakenDays !== null) {
+                        partnerTimeDaysCombinedDisplay.textContent = partner1Result.timeTakenDays;
+                    } else {
+                        partnerTimeDaysCombinedDisplay.textContent = 'N/A';
+                    }
                 }
+                
                 resultScreen.classList.add('hidden'); 
                 combinedResultScreen.classList.remove('hidden');
             }
