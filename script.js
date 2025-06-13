@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultScreen = document.getElementById('result-screen');
     const combinedResultScreen = document.getElementById('combined-result-screen');
     const surpriseQuestionScreen = document.getElementById('surprise-question-screen');
+    const siteDescriptionSection = document.getElementById('site-description'); // 사이트 설명 섹션 추가
 
     // Buttons
     const startButton = document.getElementById('start-button');
@@ -175,6 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (viewAnswersFlag === 'true' && sharedTestId) {
             // 상세 답변 비교 화면을 바로 표시
             startScreen.classList.add('hidden');
+            if (siteDescriptionSection) { // 사이트 설명 숨기기
+                siteDescriptionSection.classList.add('hidden');
+            }
             testScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
             combinedResultScreen.classList.add('hidden');
@@ -210,6 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // userScore = 0; // submitDaysButton 클릭 리스너 내부로 이동
         // userAnswers = []; // submitDaysButton 클릭 리스너 내부로 이동
         startScreen.classList.add('hidden');
+        if (siteDescriptionSection) { // 사이트 설명 숨기기
+            siteDescriptionSection.classList.add('hidden');
+        }
         surpriseQuestionScreen.classList.remove('hidden'); // 깜짝 질문 화면 먼저 표시
         daysInputField.value = ''; // 입력 필드 초기화
         daysInputTimerDisplay.textContent = '0'; // 타이머 표시 초기화
