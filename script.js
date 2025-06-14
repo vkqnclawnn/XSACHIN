@@ -194,6 +194,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sharedTestId) {
             linkedTestId = sharedTestId;
             participantType = 'partner2'; // 공유 링크로 접속 시 partner2로 설정
+            
+            // Change the ID of the startButton for GTM purposes if it's partner2
+            if (startButton) { // Ensure startButton element exists
+                startButton.id = 'start-button-partner2';
+                console.log("Changed start button ID to 'start-button-partner2' for partner2.");
+            }
+            
             // participantTypeSelect.value = 'partner2'; // 제거됨
             // participantTypeSelect.disabled = true; // 제거됨
             console.log("Opened via shared link. Linked Test ID:", linkedTestId, "Participant Type:", participantType);
