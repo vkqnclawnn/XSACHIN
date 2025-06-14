@@ -8,6 +8,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI; // .env 파일의 MONGODB_URI 사용
 
 if (!MONGODB_URI) {
@@ -16,18 +17,19 @@ if (!MONGODB_URI) {
 }
 
 // Middleware
-// app.use(cors()); // 기존의 일반적인 cors 사용 대신 아래와 같이 특정 origin을 지정
-
-const corsOptions = {
-  origin: 'https://xsachin.netlify.app', // Netlify 프론트엔드 앱의 주소
-  optionsSuccessStatus: 200 // 일부 레거시 브라우저(IE11, 다양한 SmartTV)는 204 대신 200을 반환해야 함
-};
-app.use(cors(corsOptions));
-
+app.use(cors());
 app.use(express.json());
-// 정적 파일 (CSS, 클라이언트 JS 등) 제공 설정
-app.use(express.static(path.join(__dirname, '')));
+app.use(express.static(path.join(__dirname, 'public'))); // 정적 파일 제공
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    console.log('Health check endpoint hit'); // 요청 수신 확인용 로그
+    res.status(200).json({ 
+        status: 'ok', 
+        message: 'Server is healthy and running.',
+        timestamp: new Date().toISOString() 
+    });
+});
 
 // MongoDB Connection with Mongoose
 mongoose.connect(MONGODB_URI)
