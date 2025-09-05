@@ -48,48 +48,6 @@ header h1 {
     transition: background-position 0.5s ease; /* 호버 효과를 위한 트랜지션 */
 }
 
-/* 토글 버튼 스타일 */
-#toggle-description {
-    margin: 10px auto;
-    font-size: 0.85em;
-    padding: 0.4em 0.7em;
-    justify-content: center;
-    align-items: center;
-    min-width: auto;
-    width: auto;
-    border-radius: 20px;
-}
-
-#toggle-description.toggled {
-    background: linear-gradient(15deg, #ff6b6b, #ee5a24, #fd79a8, #e17055, #fdcb6e, #e17055, #fd79a8, #ee5a24, #ff6b6b) no-repeat;
-    background-size: 300%;
-    background-position: left center;
-}
-
-#toggle-description.toggled:hover {
-    background-position: right center;
-}
-
-/* 사이트 설명 섹션 애니메이션 */
-#site-description {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#site-description.hidden {
-    opacity: 0 !important;
-    max-height: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    margin-bottom: 0 !important;
-    overflow: hidden;
-}
-
-#site-description:not(.hidden) {
-    opacity: 1;
-    max-height: 500px;
-    overflow: visible;
-}
-
 header h1:hover {
     background-position: right center; /* 호버 시 그라데이션 이동 */
 }
