@@ -1,0 +1,64 @@
+/* AdSense 광고 최적화를 위한 추가 CSS */
+
+/* 광고 컨테이너 스타일 */
+.ad-container {
+    margin: 20px 0;
+    text-align: center;
+    min-height: 250px;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.ad-container::before {
+    content: "광고";
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 10px;
+    color: #999;
+    background: #fff;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* 모바일 광고 스타일 */
+@media (max-width: 768px) {
+    .ad-container {
+        min-height: 280px;
+        margin: 15px 0;
+    }
+}
+
+/* 데스크톱 사이드 광고 */
+@media (min-width: 1200px) {
+    .sidebar-ad {
+        position: fixed;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 160px;
+        height: 600px;
+        z-index: 1000;
+    }
+}
+
+/* 결과 페이지 광고 강조 */
+#result-screen .ad-container,
+#combined-result-screen .ad-container {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border: 2px solid #4CAF50;
+}
+
+/* 테스트 완료 후 광고 위치 최적화 */
+.result-ad-top {
+    margin-bottom: 30px;
+}
+
+.result-ad-bottom {
+    margin-top: 30px;
+}
