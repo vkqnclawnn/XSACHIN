@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevQuestionButton = document.getElementById('prev-question-button'); // 새 ID로 변경 (HTML도 수정 필요)
     const copyLinkButton = document.getElementById('copy-link-button');
     const submitDaysButton = document.getElementById('submit-days-button');
+    const toggleDescriptionButton = document.getElementById('toggle-description'); // 설명 토글 버튼 추가
 
     // Display elements
     const questionTitle = document.getElementById('question-title');
@@ -216,6 +217,29 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("New test session. Participant Type:", participantType);
         }
     }
+    
+    // 사이트 설명 토글 기능
+    toggleDescriptionButton.addEventListener('click', () => {
+        const isHidden = siteDescriptionSection.classList.contains('hidden');
+        
+        if (isHidden) {
+            // 설명 보여주기
+            siteDescriptionSection.classList.remove('hidden');
+            siteDescriptionSection.style.opacity = '1';
+            siteDescriptionSection.style.maxHeight = '500px';
+            toggleDescriptionButton.innerHTML = '🙈 설명 숨기기';
+            toggleDescriptionButton.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)';
+        } else {
+            // 설명 숨기기
+            siteDescriptionSection.style.opacity = '0';
+            siteDescriptionSection.style.maxHeight = '0';
+            setTimeout(() => {
+                siteDescriptionSection.classList.add('hidden');
+            }, 400);
+            toggleDescriptionButton.innerHTML = '🎉 뭐하는 곳이냐구요? 🎉';
+            toggleDescriptionButton.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        }
+    });
     
     startButton.addEventListener('click', () => {
         // currentQuestionIndex = 0; // submitDaysButton 클릭 리스너 내부로 이동

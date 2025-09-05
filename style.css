@@ -48,6 +48,42 @@ header h1 {
     transition: background-position 0.5s ease; /* 호버 효과를 위한 트랜지션 */
 }
 
+/* 토글 버튼 스타일 */
+#toggle-description {
+    transition: all 0.3s ease;
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+#toggle-description:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+#toggle-description:active {
+    transform: scale(0.98);
+}
+
+/* 사이트 설명 섹션 애니메이션 */
+#site-description {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#site-description.hidden {
+    opacity: 0 !important;
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    overflow: hidden;
+}
+
+#site-description:not(.hidden) {
+    opacity: 1;
+    max-height: 500px;
+    overflow: visible;
+}
+
 header h1:hover {
     background-position: right center; /* 호버 시 그라데이션 이동 */
 }
