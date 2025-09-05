@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // const API_BASE_URL = 'http://localhost:3000/api'; // 이전 설정
-    const API_BASE_URL = 'https://xsachin.onrender.com/api'; // 상대 경로로 변경
+    // const API_BASE_URL = 'http://localhost:3000/api'; // 로컬 개발용
+    // const API_BASE_URL = 'https://xsachin.onrender.com/api'; // 이전 Render 서버
+    const API_BASE_URL = 'https://xsachin-production.up.railway.app/api'; // Railway 서버 URL
 
     // Screen elements
     const startScreen = document.getElementById('start-screen');
