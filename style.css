@@ -50,18 +50,20 @@ header h1 {
 
 /* 토글 버튼 스타일 */
 #toggle-description {
-    transition: all 0.3s ease;
-    transform: scale(1);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    margin: 15px auto;
+    font-size: 1em;
+    justify-content: center;
+    align-items: center;
 }
 
-#toggle-description:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+#toggle-description.toggled {
+    background: linear-gradient(15deg, #ff6b6b, #ee5a24, #fd79a8, #e17055, #fdcb6e, #e17055, #fd79a8, #ee5a24, #ff6b6b) no-repeat;
+    background-size: 300%;
+    background-position: left center;
 }
 
-#toggle-description:active {
-    transform: scale(0.98);
+#toggle-description.toggled:hover {
+    background-position: right center;
 }
 
 /* 사이트 설명 섹션 애니메이션 */

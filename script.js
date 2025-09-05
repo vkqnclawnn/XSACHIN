@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
             siteDescriptionSection.style.opacity = '1';
             siteDescriptionSection.style.maxHeight = '500px';
             toggleDescriptionButton.innerHTML = '🙈 설명 숨기기';
-            toggleDescriptionButton.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)';
+            toggleDescriptionButton.classList.add('toggled');
         } else {
             // 설명 숨기기
             siteDescriptionSection.style.opacity = '0';
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 siteDescriptionSection.classList.add('hidden');
             }, 400);
             toggleDescriptionButton.innerHTML = '🎉 뭐하는 곳이냐구요? 🎉';
-            toggleDescriptionButton.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            toggleDescriptionButton.classList.remove('toggled');
         }
     });
     
