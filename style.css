@@ -50,10 +50,14 @@ header h1 {
 
 /* 토글 버튼 스타일 */
 #toggle-description {
-    margin: 15px auto;
-    font-size: 1em;
+    margin: 10px auto;
+    font-size: 0.85em;
+    padding: 0.4em 0.7em;
     justify-content: center;
     align-items: center;
+    min-width: auto;
+    width: auto;
+    border-radius: 20px;
 }
 
 #toggle-description.toggled {
