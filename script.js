@@ -3,6 +3,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // const API_BASE_URL = 'https://xsachin.onrender.com/api'; // 이전 Render 서버
     const API_BASE_URL = 'https://xsachin-production.up.railway.app/api'; // Railway 서버 URL
 
+    // 동적 광고 로딩 함수 - AdSense 정책 준수
+    function loadAd(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container || container.children.length > 0) return; // 이미 광고가 있으면 로드하지 않음
+        
+        const adHtml = `
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-9252126033352435"
+                 data-ad-slot="auto"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        `;
+        
+        container.innerHTML = adHtml;
+        
+        // AdSense 스크립트 실행
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.log('AdSense loading error:', e);
+        }
+    }
+
     // Screen elements
     const startScreen = document.getElementById('start-screen');
     const testScreen = document.getElementById('test-screen');
@@ -370,6 +394,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 scoreDisplay.textContent = userScore;
                 resultSummaryDisplay.textContent = resultSummary;
                 resultScreen.classList.remove('hidden'); // 개인 결과 화면 표시
+                
+                // 결과 화면이 표시될 때 광고 로드 (AdSense 정책 준수)
+                setTimeout(() => {
+                    loadAd('result-ad-top');
+                    loadAd('result-ad-bottom');
+                }, 500);
 
                 shareSection.classList.remove('hidden');
                 partnerResultPrompt.classList.remove('hidden');
@@ -387,6 +417,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 scoreDisplay.textContent = userScore;
                 resultSummaryDisplay.textContent = resultSummary;
                 resultScreen.classList.remove('hidden');
+                
+                // 결과 화면이 표시될 때 광고 로드 (AdSense 정책 준수)
+                setTimeout(() => {
+                    loadAd('result-ad-top');
+                    loadAd('result-ad-bottom');
+                }, 500);
 
                 shareSection.classList.add('hidden');
                 partnerResultPrompt.classList.add('hidden');
@@ -401,6 +437,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 scoreDisplay.textContent = "오류";
                 resultSummaryDisplay.textContent = `오류가 발생했습니다: ${error.message}`;
                 resultScreen.classList.remove('hidden');
+                
+                // 오류 시에도 광고 로드 (AdSense 정책 준수)
+                setTimeout(() => {
+                    loadAd('result-ad-top');
+                    loadAd('result-ad-bottom');
+                }, 500);
+                
                 shareSection.classList.add('hidden');
                 partnerResultPrompt.classList.add('hidden');
             }
@@ -540,6 +583,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 resultScreen.classList.add('hidden'); 
                 combinedResultScreen.classList.remove('hidden');
+                
+                // 비교 결과 화면에서 광고 로딩
+                setTimeout(() => {
+                    loadAd('ad-combined-result-top');
+                }, 1000);
+                setTimeout(() => {
+                    loadAd('ad-combined-result-bottom');
+                }, 2000);
             }
 
         } catch (error) {
@@ -557,6 +608,14 @@ document.addEventListener('DOMContentLoaded', () => {
             resultScreen.classList.add('hidden'); 
             combinedResultScreen.classList.remove('hidden'); 
             testScreen.classList.add('hidden'); // 여기에도 추가 (혹시 모를 경우 대비)
+            
+            // 오류 화면에서도 광고 로딩
+            setTimeout(() => {
+                loadAd('ad-combined-result-top');
+            }, 1000);
+            setTimeout(() => {
+                loadAd('ad-combined-result-bottom');
+            }, 2000);
         } finally {
             // 로딩 메시지 숨김
             if (loadingMessageContainer) {
