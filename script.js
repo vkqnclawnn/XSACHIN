@@ -397,8 +397,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 결과 화면이 표시될 때 광고 로드 (AdSense 정책 준수)
                 setTimeout(() => {
-                    loadAd('result-ad-top');
-                    loadAd('result-ad-bottom');
+                    loadAd('ad-result-top');
+                    loadAd('ad-result-bottom');
                 }, 500);
 
                 shareSection.classList.remove('hidden');
@@ -420,8 +420,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 결과 화면이 표시될 때 광고 로드 (AdSense 정책 준수)
                 setTimeout(() => {
-                    loadAd('result-ad-top');
-                    loadAd('result-ad-bottom');
+                    loadAd('ad-result-top');
+                    loadAd('ad-result-bottom');
                 }, 500);
 
                 shareSection.classList.add('hidden');
@@ -440,8 +440,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 오류 시에도 광고 로드 (AdSense 정책 준수)
                 setTimeout(() => {
-                    loadAd('result-ad-top');
-                    loadAd('result-ad-bottom');
+                    loadAd('ad-result-top');
+                    loadAd('ad-result-bottom');
                 }, 500);
                 
                 shareSection.classList.add('hidden');
