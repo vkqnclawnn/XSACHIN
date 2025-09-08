@@ -11,6 +11,9 @@
     <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- AdSense 자동 광고 비활성화 -->
+    <meta name="google-adsense-platform-account" content="ca-pub-9252126033352435">
+    <meta name="google-adsense-platform-domain" content="xsachin.netlify.app">
     <title>X사친 테스트</title>
 
     <!-- Open Graph / Facebook -->
@@ -30,9 +33,9 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="ads.css">
     
-    <!-- Google AdSense 코드 -->
+    <!-- Google AdSense 코드 (자동 광고 완전 비활성화) -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252126033352435"
-            crossorigin="anonymous"></script>
+            crossorigin="anonymous" data-ad-client="ca-pub-9252126033352435" data-auto-ads="false"></script>
 </head>
 <body>
     <!-- Google Tag Manager (noscript) -->
@@ -73,7 +76,7 @@
                 <h2>테스트 결과</h2>
                 
                 <!-- 결과 페이지 상단 광고 컨테이너 -->
-                <div class="ad-container result-ad-top" id="result-ad-top"></div>
+                <div class="ad-container result-ad-top" id="ad-result-top"></div>
                 
                 <div id="individual-result" class="result-details">
                     <p class="result-line result-score">당신의 질투심 점수: <strong><span id="score"></span></strong>점</p>
@@ -90,14 +93,14 @@
                 </div>
                 
                 <!-- 결과 페이지 하단 광고 컨테이너 -->
-                <div class="ad-container result-ad-bottom" id="result-ad-bottom"></div>
+                <div class="ad-container result-ad-bottom" id="ad-result-bottom"></div>
             </section>
 
             <section id="combined-result-screen" class="hidden">
                 <h2>두 사람의 결과 비교</h2>
                 
                 <!-- 비교 결과 상단 광고 컨테이너 -->
-                <div class="ad-container result-ad-top" id="combined-ad-top"></div>
+                <div class="ad-container result-ad-top" id="ad-combined-result-top"></div>
                 
                 <div class="result-comparison">
                     <div id="my-result-combined" class="result-details">
@@ -116,6 +119,9 @@
                     </div>
                 </div>
                 <button id="viewDetailedAnswersButton" class="button hidden">각자 선택한 답변 보기</button> <!-- 새 버튼 추가 -->
+                
+                <!-- 비교 결과 하단 광고 컨테이너 -->
+                <div class="ad-container result-ad-bottom" id="ad-combined-result-bottom"></div>
             </section>
 
             <div id="loadingMessageContainer" class="hidden" style="padding: 20px; text-align: center; background-color: #f9f9f9; border: 1px solid #ddd; margin: 15px;">
@@ -139,6 +145,7 @@
             </div>
         </footer>
     </div>
+    <script src="auto-ads-disable.js"></script>
     <script src="script.js"></script> <!-- 이 스크립트의 내용이 크게 변경됩니다. -->
 </body>
 </html>
